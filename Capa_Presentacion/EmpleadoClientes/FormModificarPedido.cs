@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 using Font = iTextSharp.text.Font;
 
 namespace ArimaERP.EmpleadoClientes
@@ -26,13 +27,13 @@ namespace ArimaERP.EmpleadoClientes
         ClassProductoLogica productoLogica = new ClassProductoLogica();
         ClassMarcaLogica marcaLogica = new ClassMarcaLogica();
         ClassFamiliaLogica familiaLogica = new ClassFamiliaLogica();
+        ClassAuditoriaLogica auditoriaLogica = new ClassAuditoriaLogica();
         public FormModificarPedido()
         {
             InitializeComponent();
         }
-      
 
-        
+
         private void textBoxNumeroPedido_KeyPress(object sender, KeyPressEventArgs e)
         {
             //ingresar solo números y no mas de 10 caracteres
@@ -117,14 +118,16 @@ namespace ArimaERP.EmpleadoClientes
             if (e.RowIndex < 0) return;
             var fila = dataGridViewModificarPedidos.Rows[e.RowIndex];
             // Botón Ver Detalles
-            if (e.ColumnIndex == dataGridViewModificarPedidos.Columns["Column12"].Index)
+            int idPedido = Convert.ToInt32(fila.Cells["id_pedido"].Value);
+            var pedido = pedidoLogica.ObtenerPedidoPorId(idPedido);
+            if (e.ColumnIndex == dataGridViewModificarPedidos.Columns["btnVerDetalles"].Index)
             {
-                int idPedido = Convert.ToInt32(fila.Cells["id_pedido"].Value);
                 //cargar estado del pedido en el comboBoxEstados
-                if (idPedido > 0)
+                if (pedido.id_pedido > 0)
                 {
-                    int idEstado = Convert.ToInt32(fila.Cells["id_estado"].Value);
-                    comboBoxEstados.SelectedValue = idEstado;
+                    comboBoxEstados.SelectedValue = pedido.id_estado;
+                    dateTimePicker2.Value = pedido.fecha_entrega;
+
                 }
                 List<DETALLE_PEDIDO> detallesPedido = pedidoLogica.ObtenerDetallesPedido(idPedido);
                 dataGridViewDetallePedido.Rows.Clear();
@@ -154,40 +157,94 @@ namespace ArimaERP.EmpleadoClientes
 
                     );
                 }
+                bool esCancelado = pedido.id_estado == 4;
+                bool esEntregado = pedido.id_estado == 3;
+
+                // Cancelado: todo deshabilitado
+                // Entregado: solo comboBox habilitado
+                // Otros: todo habilitado
+
+                comboBoxEstados.Enabled = !esCancelado; // solo se desactiva si está cancelado
+                dateTimePicker2.Enabled = !(esCancelado || esEntregado);
+                btnModificarPedido.Enabled = !(esCancelado);
+
+                // Estilo visual del DataGridView
+                if (esCancelado || esEntregado)
+                {
+                    dataGridViewDetallePedido.DefaultCellStyle.BackColor = Color.LightGray;
+                }
+                else
+                {
+                    dataGridViewDetallePedido.DefaultCellStyle.BackColor = Color.White;
+                }
+
+                // Desactivar edición en celdas si está cancelado o entregado
+                foreach (DataGridViewColumn col in dataGridViewDetallePedido.Columns)
+                {
+                    if (col.Name == "cantidad_unidad" || col.Name == "cantidad_bultos" || col.Name == "descuento")
+                    {
+                        col.ReadOnly = esCancelado || esEntregado;
+                    }
+                }
+                dataGridViewDetallePedido.Columns["btnEliminar"].Visible = !(esCancelado || esEntregado);
+
+
+
             }
             // Botón Eliminar
             else if (e.ColumnIndex == dataGridViewModificarPedidos.Columns["eliminar"].Index)
             {
-                //Eliminar pedido solo si esta en estado "Pendiente" o "En Proceso" y no tiene factura generada
-                //Obtener id_estado del pedido
-                var idEstado = Convert.ToInt32(fila.Cells["id_estado"].Value);
-                var numeroFactura = fila.Cells["numero_factura"].Value?.ToString();
-
-                if (idEstado != 1 && idEstado != 2 && idEstado != 5)
+                //Eliminar pedido solo si esta en estado "Pendiente", "En Proceso" o y no tiene factura generada
+                if (pedido.id_estado != 1 && pedido.id_estado != 2 && pedido.id_estado != 5)
                 {
                     MessageBox.Show("Solo se pueden eliminar pedidos en estado 'Pendiente' o 'En Preparación' o 'Retrasado'.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                if (!string.IsNullOrEmpty(numeroFactura))
-                {
-                    MessageBox.Show("No se pueden eliminar pedidos con factura generada.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 var confirmResult = MessageBox.Show("¿Está seguro de que desea eliminar este pedido?", "Confirmar Eliminación", MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.Yes)
                 {
-                    int idPedido = Convert.ToInt32(fila.Cells["id_pedido"].Value);
-                    bool eliminado = pedidoLogica.EliminarPedido(idPedido);
+                    // Obtener los detalles del pedido
+                    var detalles = pedidoLogica.ObtenerDetallesPedido(idPedido); // Devuelve lista de objetos con id_producto, ID_presentacion
 
-                    if (eliminado)
+                    //  Restaurar el stock
+                    foreach (var detalle in detalles)
                     {
-                        MessageBox.Show("Pedido eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
+                        //Obtener producto_presentacion
+                        var producto_pres = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(detalle.id_producto, detalle.ID_presentacion);
+
+                        //Obtener cantidad
+                        int cantidad;
+                        cantidad = (detalle.cantidad ?? 0) + ((detalle.cantidad_bultos ?? 0) * producto_pres.unidades_bulto);
+
+                        // Sumamos la cantidad al stock actual
+                        bool actualizado = pedidoLogica.ActualizarStock(detalle.id_producto, detalle.ID_presentacion, cantidad);
+                        if (!actualizado)
+                        {
+                            MessageBox.Show(string.Join("\n", pedidoLogica.ErroresValidacion), "Error al actualizar stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+
+                    //  Eliminar los detalles del pedido
+                    if (!pedidoLogica.EliminarDetallesPedido(idPedido))
+                    {
+                        MessageBox.Show(string.Join("\n", pedidoLogica.ErroresValidacion), "Error al eliminar detalles del pedido", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    // 4. Eliminar el pedido
+                    if (!pedidoLogica.EliminarPedido(idPedido))
+                    {
+                        MessageBox.Show(string.Join("\n", pedidoLogica.ErroresValidacion), "Error al eliminar el pedido", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                     else
                     {
-                        MessageBox.Show("No se pudo eliminar el pedido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        MessageBox.Show("Pedido eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
+                        CargarTodosLosProductosActivosConStock();
+                        dataGridViewDetallePedido.Rows.Clear();
                     }
                 }
             }
@@ -206,7 +263,7 @@ namespace ArimaERP.EmpleadoClientes
                 var filaActual = dataGridViewModificarPedidos.Rows[e.RowIndex];
                 var numeroFactura = filaActual.Cells["numero_factura"].Value?.ToString();
                 var idEstado = Convert.ToInt32(filaActual.Cells["id_estado"].Value);
-                var idPedido = Convert.ToInt32(filaActual.Cells["id_pedido"].Value);
+
 
                 if (!string.IsNullOrEmpty(numeroFactura))
                 {
@@ -372,11 +429,14 @@ namespace ArimaERP.EmpleadoClientes
             CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
             //visualizar todos los productos activos y con stock en dataGridViewProductos
             CargarTodosLosProductosActivosConStock();
+            //Habilitar botones y controles
+
         }
 
         private void FormModificarPedido_Load(object sender, EventArgs e)
         {
             //crear dataGridviewModificarPedidos con columnas
+            dataGridViewModificarPedidos.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12);
             dataGridViewModificarPedidos.Columns.Add("id_pedido", "ID_Pedido");
             dataGridViewModificarPedidos.Columns.Add("fecha_creacion", "Fecha Creación");
             dataGridViewModificarPedidos.Columns.Add("fecha_entrega", "Fecha de Entrega");
@@ -398,7 +458,7 @@ namespace ArimaERP.EmpleadoClientes
             //Agregar botón de ver detalles
             DataGridViewButtonColumn btnVerDetalles = new DataGridViewButtonColumn();
             btnVerDetalles.HeaderText = "Detalles";
-            btnVerDetalles.Name = "Column12";
+            btnVerDetalles.Name = "btnVerDetalles";
             btnVerDetalles.Text = "Ver";
             btnVerDetalles.UseColumnTextForButtonValue = true;
             dataGridViewModificarPedidos.Columns.Add(btnVerDetalles);
@@ -435,6 +495,7 @@ namespace ArimaERP.EmpleadoClientes
             dataGridViewModificarPedidos.Columns.Add(btnEliminar);
 
             //cargar dataGridViewDetallePedido con columnas
+            dataGridViewDetallePedido.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12);
             dataGridViewDetallePedido.Columns.Add("ID_detalle_pedido", "ID_Detalle");
             dataGridViewDetallePedido.Columns.Add("id_producto", "ID_producto");
             dataGridViewDetallePedido.Columns.Add("ID_presentacion", "ID_presentacion");
@@ -499,8 +560,10 @@ namespace ArimaERP.EmpleadoClientes
             List<PEDIDO> todosLosPedidos = pedidoLogica.ObtenerTodosLosPedidos();
             CargarPedidosEnDataGridView(todosLosPedidos);
             //cargar dataGridViewProductos con columnas
+            dataGridViewProductos.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12);
             dataGridViewProductos.Columns.Add("nombre", "Nombre");
             dataGridViewProductos.Columns.Add("presentacion", "Presentación");
+            dataGridViewProductos.Columns.Add("unidades_bultos", "Unidades x Bulto");
             dataGridViewProductos.Columns.Add("cod_producto", "Código");
             dataGridViewProductos.Columns.Add("precioLista", "Precio");
             dataGridViewProductos.Columns.Add("stock", "Stock");
@@ -538,7 +601,7 @@ namespace ArimaERP.EmpleadoClientes
             comboBoxMarca.ValueMember = "id_marca";
             comboBoxMarca.SelectedIndex = -1; // No seleccionar nada al inicio        
         }
-        
+
         private void txtBuscarCliente_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -604,6 +667,7 @@ namespace ArimaERP.EmpleadoClientes
                     dataGridViewProductos.Rows.Add(
                         producto.nombre,
                         presentacion.descripcion,
+                        pp.unidades_bulto,
                         pp.cod_producto,
                         pp.precioLista,
                         stockProducto.stock_actual,
@@ -935,7 +999,7 @@ namespace ArimaERP.EmpleadoClientes
                 }
             }
         }
-        
+
 
 
         private void comboBoxFamilia_SelectedIndexChanged(object sender, EventArgs e)
@@ -1041,237 +1105,495 @@ namespace ArimaERP.EmpleadoClientes
         private void btnModificarPedido_Click(object sender, EventArgs e)
         {
             // Paso 1: Validaciones previas
-            if (dataGridViewModificarPedidos.CurrentRow == null)
+            var filaPedido = dataGridViewModificarPedidos.CurrentRow;
+            if (filaPedido == null)
             {
                 MessageBox.Show("Debe seleccionar un pedido para modificar.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            //Si el pedido seleccionado está en estado 'Cancelado' no permitir modificar
-            var filaPedidoSeleccionado = dataGridViewModificarPedidos.CurrentRow;
-            int estadoPedidoSeleccionado = Convert.ToInt32(filaPedidoSeleccionado.Cells["id_estado"].Value);
-            if (estadoPedidoSeleccionado == 4)
+
+            int idPedidoSeleccionado = Convert.ToInt32(filaPedido.Cells["id_pedido"].Value);
+            var pedido = pedidoLogica.ObtenerPedidoPorId(idPedidoSeleccionado);
+
+            if (pedido.id_estado == 4)
             {
                 MessageBox.Show("No se pueden modificar pedidos en estado 'Cancelado'.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Validar fecha de entrega
-            DateTime fechaEntrega = dateTimePicker2.Value.Date;
-            if (fechaEntrega <= DateTime.Today)
+            int idEstadoAnterior = pedido.id_estado;
+            int idEstadoNuevo = Convert.ToInt32(comboBoxEstados.SelectedValue);
+
+            // Si el pedido está entregado, solo se permite pasarlo a cancelado
+            if (idEstadoAnterior == 3 && idEstadoNuevo != 4)
             {
-                MessageBox.Show("La fecha de entrega debe ser posterior a la actual.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Un pedido en estado 'Entregado' solo puede pasar a 'Cancelado'. No se puede modificar ningún otro dato.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                comboBoxEstados.SelectedValue = idEstadoAnterior;
                 return;
             }
 
-            // Validar que haya al menos un detalle
+            // Validar fecha de entrega
+            DateTime fechaEntrega = dateTimePicker2.Value.Date;
+            if (dateTimePicker2.Enabled && fechaEntrega < DateTime.Today)
+            {
+                MessageBox.Show("La fecha de entrega no debe ser anterior a la actual.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dateTimePicker2.Value = DateTime.Now;
+                return;
+            }
+
             if (dataGridViewDetallePedido.Rows.Count == 0)
             {
                 MessageBox.Show("Debe agregar al menos un producto al pedido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Validar cantidades en cada detalle
-            foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
-            {
-                if (fila.IsNewRow) continue;
-                int cantidadUnidad = 0, cantidadBultos = 0;
-                int.TryParse(fila.Cells["cantidad_unidad"].Value?.ToString(), out cantidadUnidad);
-                int.TryParse(fila.Cells["cantidad_bultos"].Value?.ToString(), out cantidadBultos);
-                if (cantidadUnidad <= 0 && cantidadBultos <= 0)
-                {
-                    MessageBox.Show("Cada producto debe tener al menos una cantidad en unidades o bultos mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
-
-            // Validar estado seleccionado
             if (comboBoxEstados.SelectedIndex == -1)
             {
                 MessageBox.Show("Debe seleccionar un estado para el pedido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            // Obtener datos del pedido seleccionado
-            var filaPedido = dataGridViewModificarPedidos.CurrentRow;
-            int idPedido = Convert.ToInt32(filaPedido.Cells["id_pedido"].Value);
-            DateTime fechaCreacion = DateTime.ParseExact(filaPedido.Cells["fecha_creacion"].Value.ToString(), "dd/MM/yyyy", null);
-            int idCliente = Convert.ToInt32(filaPedido.Cells["id_cliente"].Value);
-            //Obtener CLIENTE por id_cliente 
+            //Datos actuales del pedido
+            DateTime fechaCreacion = pedido.fecha_creacion;
+            int idCliente = pedido.id_cliente;
             var cliente = clienteLogica.ObtenerClientePorId(idCliente);
+            string vendedor = pedido.vendedor;
+            int? numeroFacturaAnterior = pedido.numero_factura;
 
+            var detallesAnteriores = pedidoLogica.ObtenerDetallesPedido(idPedidoSeleccionado);
 
-            int idEstadoAnterior = Convert.ToInt32(filaPedido.Cells["id_estado"].Value);
-            int idEstadoNuevo = Convert.ToInt32(comboBoxEstados.SelectedValue);
-            string vendedor = filaPedido.Cells["vendedor"].Value?.ToString();
-            int? numeroFacturaAnterior = null;
-            if (filaPedido.Cells["numero_factura"].Value != null && int.TryParse(filaPedido.Cells["numero_factura"].Value.ToString(), out int nf))
-                numeroFacturaAnterior = nf;
+            bool pedidoEntregadoYCancelado = idEstadoAnterior == 3 && idEstadoNuevo == 4;
 
-            // Validar transición de estados
-            if (idEstadoAnterior == 3 && (idEstadoNuevo != 4 && idEstadoNuevo != 3))
+            // Validar stock futuro solo si el pedido no está siendo cancelado
+            if (!pedidoEntregadoYCancelado)
             {
-                MessageBox.Show("Un pedido en estado 'Entregado' solo puede pasar a 'Cancelado'.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-
-            // Paso 2: Verificar stock de cada producto
-            foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
-            {
-                if (fila.IsNewRow) continue;
-                int idProducto = Convert.ToInt32(fila.Cells["id_producto"].Value);
-                int idPresentacion = Convert.ToInt32(fila.Cells["ID_presentacion"].Value);
-                int cantidadUnidad = 0, cantidadBultos = 0;
-                int.TryParse(fila.Cells["cantidad_unidad"].Value?.ToString(), out cantidadUnidad);
-                int.TryParse(fila.Cells["cantidad_bultos"].Value?.ToString(), out cantidadBultos);
-
-                var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(idProducto, idPresentacion);
-                int unidadesPorBulto = productoPresentacion.unidades_bulto;
-                int cantidadTotal = cantidadUnidad + (cantidadBultos * unidadesPorBulto);
-
-                var stock = productoLogica.ObtenerStockPorProductoYPresentacion(idProducto, idPresentacion);
-                if (stock == null || stock.stock_actual < cantidadTotal)
+                foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
                 {
-                    MessageBox.Show($"Stock insuficiente para el producto '{fila.Cells["nombre"].Value}' ({cantidadTotal} solicitado, {stock?.stock_actual ?? 0} disponible).", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-            }
+                    if (fila.IsNewRow) continue;
 
-            // Paso 3: Eliminar todos los detalles anteriores y asignar los nuevos desde el DataGrid
-            // Eliminar todos los detalles anteriores asociados al pedido
-            pedidoLogica.EliminarDetallesPedido(idPedido);
+                    int idProducto = Convert.ToInt32(fila.Cells["id_producto"].Value);
+                    int idPresentacion = Convert.ToInt32(fila.Cells["ID_presentacion"].Value);
+                    int cantidadUnidad = 0, cantidadBultos = 0;
+                    decimal descuento = 0;
 
-            // Preparar lista de nuevos detalles a guardar
-            var detallesNuevos = new List<DETALLE_PEDIDO>();
-            foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
-            {
-                if (fila.IsNewRow) continue;
-
-                int idProducto = Convert.ToInt32(fila.Cells["id_producto"].Value);
-                int idPresentacion = Convert.ToInt32(fila.Cells["ID_presentacion"].Value);
-                int ID_detalle_pedido = Convert.ToInt32(fila.Cells["ID_detalle_pedido"].Value);
-                int cantidadUnidad = 0, cantidadBultos = 0;
-                int.TryParse(fila.Cells["cantidad_unidad"].Value?.ToString(), out cantidadUnidad);
-                int.TryParse(fila.Cells["cantidad_bultos"].Value?.ToString(), out cantidadBultos);
-                decimal precioUnitario = Convert.ToDecimal(fila.Cells["precio_unitario"].Value);
-                decimal descuento = 0;
-                decimal.TryParse(fila.Cells["descuento"].Value?.ToString(), out descuento);
-
-                detallesNuevos.Add(new DETALLE_PEDIDO
-                {
-                    id_pedido = idPedido,
-                    id_producto = idProducto,
-                    ID_presentacion = idPresentacion,
-                    ID_detalle_pedido = ID_detalle_pedido,
-                    cantidad = cantidadUnidad,
-                    cantidad_bultos = cantidadBultos,
-                    precio_unitario = precioUnitario,
-                    descuento = descuento
-                });
-            }
-
-            // Paso 4: Calcular nuevo total
-            decimal totalPedido = 0;
-            foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
-            {
-                if (fila.IsNewRow) continue;
-                decimal subtotal = 0, descuento = 0;
-                decimal.TryParse(fila.Cells["subtotal"].Value?.ToString(), out subtotal);
-                decimal.TryParse(fila.Cells["descuento"].Value?.ToString(), out descuento);
-                totalPedido += subtotal - (subtotal * descuento / 100);
-            }
-            // Paso extra: actualizar cuenta corriente si corresponde
-            if (cliente.confiable)
-            {
-                decimal totalAnterior = Convert.ToDecimal(filaPedido.Cells["total"].Value);
-
-                if (idEstadoAnterior != 3 && idEstadoNuevo == 3)
-                {
-                    // Primera vez que se entrega → sumar total completo
-                    bool actualizado = clienteLogica.SumarSaldoPorPedidoEntregado(idCliente, totalPedido);
-                    if (!actualizado)
+                    if (!int.TryParse(fila.Cells["cantidad_unidad"].Value?.ToString(), out cantidadUnidad) || cantidadUnidad < 0 ||
+                        !int.TryParse(fila.Cells["cantidad_bultos"].Value?.ToString(), out cantidadBultos) || cantidadBultos < 0)
                     {
-                        MessageBox.Show("No se pudo actualizar el saldo de la cuenta corriente del cliente.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Las cantidades deben ser valores numéricos mayores o iguales a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (cantidadUnidad == 0 && cantidadBultos == 0)
+                    {
+                        MessageBox.Show("Cada producto debe tener al menos una cantidad en unidades o bultos mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (!decimal.TryParse(fila.Cells["descuento"].Value?.ToString(), out descuento) || descuento < 0 || descuento > 100)
+                    {
+                        MessageBox.Show("El descuento debe ser un número entre 0 y 100.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(idProducto, idPresentacion);
+                    int unidadesPorBulto = productoPresentacion.unidades_bulto;
+                    int cantidadSolicitada = cantidadUnidad + (cantidadBultos * unidadesPorBulto);
+
+                    var stock = productoLogica.ObtenerStockPorProductoYPresentacion(idProducto, idPresentacion);
+                    int stockActual = stock?.stock_actual ?? 0;
+
+                    var detalleAnterior = detallesAnteriores.FirstOrDefault(d =>
+                        d.id_producto == idProducto && d.ID_presentacion == idPresentacion);
+
+                    int cantidadAnterior = 0;
+                    if (detalleAnterior != null)
+                    {
+                        int unidadesAnteriores = detalleAnterior.cantidad ?? 0;
+                        int bultosAnteriores = detalleAnterior.cantidad_bultos ?? 0;
+                        cantidadAnterior = unidadesAnteriores + (bultosAnteriores * unidadesPorBulto);
+                    }
+
+                    int stockFuturo = stockActual + cantidadAnterior;
+
+                    if (stockFuturo < cantidadSolicitada)
+                    {
+                        MessageBox.Show($"Stock insuficiente para el producto '{fila.Cells["nombre"].Value}' ({cantidadSolicitada} solicitado, {stockFuturo} disponible tras reposición).", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                 }
-                else if (idEstadoAnterior == 3 && idEstadoNuevo == 3)
+            }
+
+            // Reposición de stock si corresponde
+            if (!pedidoEntregadoYCancelado)
+            {
+                foreach (var detalle in detallesAnteriores)
                 {
-                    // Ya estaba entregado → actualizar solo si el total cambió
-                    decimal diferencia = totalPedido - totalAnterior;
-                    if (diferencia != 0)
+                    var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(detalle.id_producto, detalle.ID_presentacion);
+                    int unidadesPorBulto = productoPresentacion.unidades_bulto;
+                    int cantidadTotal = (detalle.cantidad ?? 0) + ((detalle.cantidad_bultos ?? 0) * unidadesPorBulto);
+                    // Mensaje de prueba para verificar cada detalle
+                    /*MessageBox.Show(
+                        $"Producto: {detalle.id_producto}, Presentación: {detalle.ID_presentacion}\n" +
+                        $"Unidades: {detalle.cantidad ?? 0}, Bultos: {detalle.cantidad_bultos ?? 0}, Unidades por bulto: {unidadesPorBulto}\n" +
+                        $"Cantidad total a reponer: {cantidadTotal}",
+                        "Detalle de reposición",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                    */
+                    bool repuesto = pedidoLogica.ActualizarStock(detalle.id_producto, detalle.ID_presentacion, cantidadTotal);
+                    if (!repuesto)
                     {
-                        bool actualizado = clienteLogica.AjustarSaldo(idCliente, diferencia);
-                        if (!actualizado)
+                        MessageBox.Show("Error al reponer stock:\n" + string.Join("\n", productoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else
+                    {
+                        //Mostrar stock
+                        var stock = productoLogica.ObtenerStockPorProductoYPresentacion(detalle.id_producto, detalle.ID_presentacion);
+                        /*if (stock != null)
                         {
-                            MessageBox.Show("No se pudo ajustar el saldo de la cuenta corriente del cliente.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show(
+                                $"Stock actualizado para Producto {detalle.id_producto}, Presentación {detalle.ID_presentacion}:\n" +
+                                $"Stock actual: {stock.stock_actual}",
+                                "Stock después de reposición",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information
+                            );
+                        }
+                        else
+                        {
+                            MessageBox.Show("No se pudo obtener el stock actualizado.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }*/
+                    }
+                }
+            }
+
+            //Auditoria
+            foreach (var detalle in detallesAnteriores)
+            {
+                string resumenDetalleEliminado =
+                    $"Pedido ID: {detalle.id_pedido}, Producto: {detalle.id_producto}, Presentación: {detalle.ID_presentacion}, " +
+                    $"Cantidad: {detalle.cantidad}, Bultos: {detalle.cantidad_bultos}, Precio: {detalle.precio_unitario:C}, Descuento: {detalle.descuento:P}";
+
+                bool registradoEliminado = auditoriaLogica.Registrar(
+                    valorAnterior: resumenDetalleEliminado,
+                    valorNuevo: "-",
+                    nombreAccion: "Baja",
+                    nombreEntidad: "DETALLE_PEDIDO",
+                    usuario: ObtenerUsuarioActual()
+                );
+
+                if (!registradoEliminado)
+                {
+                    MessageBox.Show("No se pudo registrar auditoría para el detalle eliminado:\n" +
+                        string.Join("\n", auditoriaLogica.ErroresValidacion),
+                        "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+
+
+
+            if (!pedidoEntregadoYCancelado)
+            {
+                pedidoLogica.EliminarDetallesPedido(idPedidoSeleccionado);
+            }
+
+            var detallesNuevos = new List<DETALLE_PEDIDO>();
+            if (!pedidoEntregadoYCancelado)
+            {
+                foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
+                {
+                    if (fila.IsNewRow) continue;
+
+                    int idProducto = Convert.ToInt32(fila.Cells["id_producto"].Value);
+                    int idPresentacion = Convert.ToInt32(fila.Cells["ID_presentacion"].Value);
+                    int ID_detalle_pedido = Convert.ToInt32(fila.Cells["ID_detalle_pedido"].Value);
+                    int cantidadUnidad = Convert.ToInt32(fila.Cells["cantidad_unidad"].Value);
+                    int cantidadBultos = Convert.ToInt32(fila.Cells["cantidad_bultos"].Value);
+                    decimal precioUnitario = Convert.ToDecimal(fila.Cells["precio_unitario"].Value);
+                    decimal descuento = Convert.ToDecimal(fila.Cells["descuento"].Value);
+
+                    detallesNuevos.Add(new DETALLE_PEDIDO
+                    {
+                        id_pedido = idPedidoSeleccionado,
+                        id_producto = idProducto,
+                        ID_presentacion = idPresentacion,
+                        ID_detalle_pedido = ID_detalle_pedido,
+                        cantidad = cantidadUnidad,
+                        cantidad_bultos = cantidadBultos,
+                        precio_unitario = precioUnitario,
+                        descuento = descuento
+                    });
+
+                    var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(idProducto, idPresentacion);
+                    int unidadesPorBulto = productoPresentacion.unidades_bulto;
+                    int cantidadTotal = cantidadUnidad + (cantidadBultos * unidadesPorBulto);
+
+                    /* Mensaje de prueba para verificar cada descuento
+                    MessageBox.Show(
+                        $"Producto: {idProducto}, Presentación: {idPresentacion}\n" +
+                        $"Unidades: {cantidadUnidad}, Bultos: {cantidadBultos}, Unidades por bulto: {unidadesPorBulto}\n" +
+                        $"Cantidad total a descontar: {cantidadTotal}",
+                        "Detalle de descuento",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );*/
+
+                    bool descontado = pedidoLogica.ActualizarStock(idProducto, idPresentacion, -(cantidadTotal));
+                    if (!descontado)
+                    {
+                        MessageBox.Show("Error al descontar stock:\n" + string.Join("\n", productoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else
+                    {
+                        var stock = productoLogica.ObtenerStockPorProductoYPresentacion(idProducto, idPresentacion);
+                        if (stock != null)
+                        {
+                           /* MessageBox.Show(
+                                $"Stock actualizado para Producto {idProducto}, Presentación {idPresentacion}:\n" +
+                                $"Stock actual: {stock.stock_actual}",
+                                "Stock después de descuento",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information
+                            );*/
+                        }
+                        else
+                        {
+                            MessageBox.Show("No se pudo obtener el stock actualizado.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
                 }
             }
 
-            // Paso 5: Actualizar pedido
-            int? nuevoNumeroFactura = numeroFacturaAnterior;
-            bool generarFacturaAnulada = false;
-            bool generarNuevaFactura = false;
 
-            // Si pasa a Cancelado y tenía factura, generar comprobante ANULADO
-            if (idEstadoNuevo == 4 && numeroFacturaAnterior.HasValue)
+            // Calcular nuevo total
+            decimal totalPedido = 0;
+
+            if (!pedidoEntregadoYCancelado)
             {
-                generarFacturaAnulada = true;
-            }
-            // Si pasa de Cancelado a Entregado, generar nueva factura
-            if (idEstadoAnterior == 4 && idEstadoNuevo == 3)
-            {
-                nuevoNumeroFactura = pedidoLogica.GenerarNumeroFactura(idPedido);
-                generarNuevaFactura = true;
+                foreach (DataGridViewRow fila in dataGridViewDetallePedido.Rows)
+                {
+                    if (fila.IsNewRow) continue;
+
+                    decimal subtotal = 0, descuento = 0;
+
+                    var valorSubtotal = fila.Cells["subtotal"].Value?.ToString();
+                    if (string.IsNullOrWhiteSpace(valorSubtotal) || !decimal.TryParse(valorSubtotal, out subtotal) || subtotal < 0)
+                    {
+                        MessageBox.Show("El subtotal debe ser un número válido mayor o igual a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    var valorDescuento = fila.Cells["descuento"].Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(valorDescuento))
+                    {
+                        if (!decimal.TryParse(valorDescuento, out descuento) || descuento < 0 || descuento > 100)
+                        {
+                            MessageBox.Show("El descuento debe ser un número entre 0 y 100.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    totalPedido += subtotal - (subtotal * descuento / 100);
+                }
             }
 
-            // Actualizar el pedido
-            var pedidoModificado = pedidoLogica.ModificarPedido(
-                idPedido,
+            
+
+
+
+            // Paso 6: Reposición de stock si el pedido entregado fue cancelado
+            if (idEstadoAnterior == 3 && idEstadoNuevo == 4)
+            {
+
+                foreach (var detalle in detallesAnteriores)
+                {
+                    var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(detalle.id_producto, detalle.ID_presentacion);
+                    int unidadesPorBulto = productoPresentacion.unidades_bulto;
+                    int cantidadTotal = (detalle.cantidad ?? 0) + ((detalle.cantidad_bultos ?? 0) * unidadesPorBulto);
+
+                    bool repuesto = pedidoLogica.ActualizarStock(detalle.id_producto, detalle.ID_presentacion, cantidadTotal);
+                    if (!repuesto)
+                    {
+                        MessageBox.Show("Error al reponer stock por cancelación:\n" + string.Join("\n", productoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
+
+
+            if (!pedidoEntregadoYCancelado)
+            {
+                // Paso 7: Actualizar pedido
+                var pedidoModificado = pedidoLogica.ModificarPedido(
+                idPedidoSeleccionado,
                 fechaCreacion,
                 fechaEntrega,
                 idCliente,
                 idEstadoNuevo,
                 totalPedido,
-                nuevoNumeroFactura ?? 0,
+                numeroFacturaAnterior,
                 vendedor
-            );
+                );
+                //Auditorias
+                if (pedidoModificado != null)
+                {
+                    string usuarioActual = ObtenerUsuarioActual();
 
-            // Paso 6: Guardar los nuevos detalles
-            if (pedidoLogica.GuardarDetalles(detallesNuevos))
-            {
-                // Detalles guardados correctamente
-                MessageBox.Show("Detalles del pedido guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string resumenAnterior =
+                        $"Estado: {idEstadoAnterior}, Fecha Entrega: {pedido.fecha_entrega:dd/MM/yyyy}, Total: {pedido.total:C}";
+
+                    string resumenNuevo =
+                        $"Estado: {idEstadoNuevo}, Fecha Entrega: {fechaEntrega:dd/MM/yyyy}, Total: {totalPedido:C}";
+
+                    bool registradoPedido = auditoriaLogica.Registrar(
+                        valorAnterior: resumenAnterior,
+                        valorNuevo: resumenNuevo,
+                        nombreAccion: "Modificacion",
+                        nombreEntidad: "PEDIDO",
+                        usuario: usuarioActual
+                    );
+
+                    if (!registradoPedido)
+                    {
+                        MessageBox.Show("Pedido modificado, pero no se pudo registrar auditoría:\n" +
+                            string.Join("\n", auditoriaLogica.ErroresValidacion),
+                            "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
             }
             else
             {
-                MessageBox.Show("Error al guardar los detalles del pedido: " + string.Join("\n", pedidoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            ;
-
-            
-                // Paso 7: Generar comprobante si corresponde
-                if (generarFacturaAnulada && pedidoModificado != null && pedidoModificado.numero_factura.HasValue)
+                var pedidoModificado = pedidoLogica.ModificarPedido(
+                    idPedidoSeleccionado,
+                    pedido.fecha_creacion,
+                    pedido.fecha_entrega,
+                    pedido.id_cliente,
+                    idEstadoNuevo,
+                    pedido.total,
+                    pedido.numero_factura,
+                    pedido.vendedor
+                    );
+                if (pedidoModificado != null)
                 {
-                    var detalles = pedidoLogica.ObtenerDetallesPedido(idPedido);
-                    GenerarComprobanteFactura(pedidoModificado, detalles);
-                }
-                if (generarNuevaFactura && pedidoModificado != null && pedidoModificado.numero_factura.HasValue)
-                {
-                    var detalles = pedidoLogica.ObtenerDetallesPedido(idPedido);
-                    GenerarComprobanteFactura(pedidoModificado, detalles);
+                    string usuarioActual = ObtenerUsuarioActual();
+
+                    string resumenAnterior =
+                        $"Estado: {idEstadoAnterior}, Fecha Entrega: {pedido.fecha_entrega:dd/MM/yyyy}, Total: {pedido.total:C}";
+
+                    string resumenNuevo =
+                        $"Estado: {idEstadoNuevo}, Fecha Entrega: {fechaEntrega:dd/MM/yyyy}, Total: {totalPedido:C}";
+
+                    bool registradoPedido = auditoriaLogica.Registrar(
+                        valorAnterior: resumenAnterior,
+                        valorNuevo: resumenNuevo,
+                        nombreAccion: "Modificacion",
+                        nombreEntidad: "PEDIDO",
+                        usuario: usuarioActual
+                    );
+
+                    if (!registradoPedido)
+                    {
+                        MessageBox.Show("Pedido modificado, pero no se pudo registrar auditoría:\n" +
+                            string.Join("\n", auditoriaLogica.ErroresValidacion),
+                            "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
 
-                MessageBox.Show("Pedido modificado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // Refrescar la grilla
-                CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
-                //Cargar todos los productos activos con stock en datagrid
-                CargarTodosLosProductosActivosConStock();
             }
-        
-           
+
+            // Paso 8: Guardar los nuevos detalles si corresponde
+            if (!pedidoEntregadoYCancelado)
+            {
+
+                if (pedidoLogica.GuardarDetalles(detallesNuevos))
+                {
+                    foreach (var detalle in detallesNuevos)
+                    {
+                        string resumenDetalle =
+                            $"Pedido ID: {detalle.id_pedido}, Producto: {detalle.id_producto}, Presentación: {detalle.ID_presentacion}, " +
+                            $"Cantidad: {detalle.cantidad}, Bultos: {detalle.cantidad_bultos}, Precio: {detalle.precio_unitario:C}, Descuento: {detalle.descuento:P}";
+
+                        bool registradoDetalle = auditoriaLogica.Registrar(
+                            valorAnterior: "-",
+                            valorNuevo: resumenDetalle,
+                            nombreAccion: "Alta",
+                            nombreEntidad: "DETALLE_PEDIDO",
+                            usuario: ObtenerUsuarioActual()
+                        );
+
+                        if (!registradoDetalle)
+                        {
+                            MessageBox.Show("Detalle guardado, pero no se pudo registrar auditoría:\n" +
+                                string.Join("\n", auditoriaLogica.ErroresValidacion),
+                                "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        //MessageBox.Show("Detalles del pedido guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Error al guardar los detalles del pedido: " + string.Join("\n", pedidoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            var pedidoActualizado = pedidoLogica.ObtenerPedidoPorId(idPedidoSeleccionado);
+            // Generar comprobante ANULADO si corresponde
+            if (idEstadoAnterior == 3 && idEstadoNuevo == 4 && pedidoActualizado.numero_factura != null)
+            {
+                var detalles = pedidoLogica.ObtenerDetallesPedido(pedidoActualizado.id_pedido);
+                GenerarComprobanteFactura(pedidoActualizado, detalles); // tipo ANULADO
+            }
+            // Actualizar cuenta corriente si corresponde
+            if (cliente.confiable)
+            {
+                decimal totalAnterior = pedido.total;
+
+                bool pasoDeNoEntregadoAEntregado =
+                    pedidoActualizado.id_estado == 3 &&
+                    (pedido.id_estado == 1 || pedido.id_estado == 2 || pedido.id_estado == 5);
+
+                bool pasoDeEntregadoACancelado =
+                    pedido.id_estado == 3 && pedidoActualizado.id_estado == 4;
+
+               // MessageBox.Show($"Estado anterior: {idEstadoAnterior}, nuevo: {idEstadoNuevo}");
+
+
+                if (pasoDeNoEntregadoAEntregado)
+                {
+                    //MessageBox.Show($"Monto a sumar: {pedidoActualizado.total}");
+
+                    bool sumado = clienteLogica.SumarSaldoPorPedidoEntregado(idCliente, pedidoActualizado.total);
+                    if (!sumado)
+                    {
+                        string errores = string.Join("\n", clienteLogica.ErroresValidacion);
+                        MessageBox.Show("No se pudo sumar el nuevo saldo a la cuenta corriente:\n" + errores, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else if (pasoDeEntregadoACancelado)
+                {
+                    bool restado = clienteLogica.SumarSaldoPorPedidoEntregado(idCliente, -pedidoActualizado.total);
+                    if (!restado)
+                    {
+                        string errores = string.Join("\n", clienteLogica.ErroresValidacion);
+                        MessageBox.Show("No se pudo restar el saldo de la cuenta corriente.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+            }
+            //Finalizar
+            MessageBox.Show("Pedido modificado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
+            CargarTodosLosProductosActivosConStock();
+            dataGridViewDetallePedido.Rows.Clear();
+        }
+    
+        private string ObtenerUsuarioActual()
+        {
+            // Aquí debes implementar la lógica para obtener el nombre del usuario actual
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
+        }
         private void dataGridViewProductos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             //si se presiona el btnAgregarProducto 
@@ -1391,6 +1713,23 @@ namespace ArimaERP.EmpleadoClientes
 
             fila.Cells["subtotal"].Value = subtotal;
             fila.Cells["total"].Value = total;           
+        }
+
+        private void dataGridViewModificarPedidos_SelectionChanged(object sender, EventArgs e)
+        {
+            // Limpiar detalles si hay una fila seleccionada
+            if (dataGridViewModificarPedidos.SelectedRows.Count > 0)
+            {
+                dataGridViewDetallePedido.Rows.Clear();
+                comboBoxEstados.SelectedIndex = -1;
+                dateTimePicker2.Value = DateTime.Now;
+
+                // También podés desactivar controles hasta que se presione btnVerDetalles
+                comboBoxEstados.Enabled = false;
+                dateTimePicker2.Enabled = false;
+                btnModificarPedido.Enabled = false;
+                dataGridViewDetallePedido.DefaultCellStyle.BackColor = Color.White;
+            }
         }
     }
 }

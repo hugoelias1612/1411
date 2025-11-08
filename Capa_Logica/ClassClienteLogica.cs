@@ -56,7 +56,7 @@ namespace Capa_Logica
         }
 
 
-        public Boolean AgregarCliente(string nombre, string apellido, string id_tamano, string id_zona, DateTime fecha_alta, string email, string telefono, string dni, string cuit_cuil, string calle, string numero, string ciudad, string provincia, string razon_social, bool estado, bool confiable, string condicion_frenteIVA, string cod_postal)
+        public int? AgregarCliente(string nombre, string apellido, string id_tamano, string id_zona, DateTime fecha_alta, string email, string telefono, string dni, string cuit_cuil, string calle, string numero, string ciudad, string provincia, string razon_social, bool estado, bool confiable, string condicion_frenteIVA, string cod_postal)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Capa_Logica
             {
                 client.ErroresValidacion.Clear();
                 client.ErroresValidacion.Add("Error al agregar el cliente: " + ex.Message);
-                return false;
+                return null;
             }
         }
         //Existe otro cliente con mismo email
@@ -208,6 +208,10 @@ namespace Capa_Logica
         public List<CLIENTE> ClientesConfiablesPorZona(int id_zona)
         {
             return client.ClientesConfiablesPorZona(id_zona);
+        }
+        public bool CrearCuentaCorriente(int idCliente, decimal saldoInicial = 0)
+        {
+            return client.CrearCuentaCorriente(idCliente, saldoInicial);
         }
     }
 }

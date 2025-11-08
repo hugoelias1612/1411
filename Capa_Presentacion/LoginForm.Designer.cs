@@ -149,10 +149,11 @@
             // 
             // TContrasena
             // 
+            this.TContrasena.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TContrasena.Location = new System.Drawing.Point(4, 143);
             this.TContrasena.Margin = new System.Windows.Forms.Padding(4);
             this.TContrasena.Name = "TContrasena";
-            this.TContrasena.Size = new System.Drawing.Size(285, 22);
+            this.TContrasena.Size = new System.Drawing.Size(285, 30);
             this.TContrasena.TabIndex = 3;
             this.TContrasena.UseSystemPasswordChar = true;
             // 
@@ -173,10 +174,11 @@
             // TCorreo
             // 
             this.TCorreo.BackColor = System.Drawing.SystemColors.Window;
+            this.TCorreo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TCorreo.Location = new System.Drawing.Point(4, 57);
             this.TCorreo.Margin = new System.Windows.Forms.Padding(4);
             this.TCorreo.Name = "TCorreo";
-            this.TCorreo.Size = new System.Drawing.Size(285, 22);
+            this.TCorreo.Size = new System.Drawing.Size(285, 30);
             this.TCorreo.TabIndex = 1;
             // 
             // LCorreo

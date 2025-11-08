@@ -16,6 +16,7 @@ namespace ArimaERP.EmpleadoClientes
     public partial class MDIClientes : Form
     {
         ClassEmpleadoLogica classEmpleadoLogica = new ClassEmpleadoLogica();
+        ClassUsuarioLogica usuarioLogica = new ClassUsuarioLogica();
         public MDIClientes()
         {
             InitializeComponent();            
@@ -35,16 +36,30 @@ namespace ArimaERP.EmpleadoClientes
             lblHora.Text = lblHora.Text + DateTime.Now.ToString("HH:mm:ss");
             //Obtener usuario actual
             string usuarioActual = ObtenerUsuarioActual();
+            //Obtener usuario por nombre
+            var usuario = usuarioLogica.ObtenerUsuarioPorNombre(usuarioActual);
+
             //obtener nombre de empleado de tabla Empleado partir de nombre_usuario que corresponde al usuario actual
             Empleado empleado = new ClassEmpleadoLogica().ObtenerEmpleadoPorNombreUsuario(usuarioActual);
             if (empleado != null)
             {
-                lblNombreUsuario.Text = $"Vendedor: {empleado.nombre} {empleado.apellido}";
+                if (usuario.id_rol == 6)
+                {
+                    lblNombreUsuario.Text = $"Vendedor: {empleado.nombre} {empleado.apellido}";
+                }
+                else if (usuario.id_rol == 8)
+                {   
+                    lblNombreUsuario.Text = $"Administrador:{empleado.nombre} {empleado.apellido}";
+                }else if (usuario.id_rol == 7)
+                {
+                    lblNombreUsuario.Text = $"Empleado Sector Productos:{empleado.nombre} {empleado.apellido}";
+                }
+
             }
         }
         private string ObtenerUsuarioActual()
         {
-            // Aquí debes implementar la lógica para obtener el nombre del usuario actual
+            
             return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
         }
 

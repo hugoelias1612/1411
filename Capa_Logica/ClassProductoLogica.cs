@@ -13,6 +13,9 @@ namespace Capa_Logica
         public List<string> ErroresValidacion { get; private set; } = new List<string>();
         //instanciar ClassProducto
         ClassProducto classProducto = new Capa_Datos.ClassProducto();
+       
+        private PRODUCTO producto = new PRODUCTO();
+        private producto_presentacion  productoPresentacion = new producto_presentacion();
         //obtener producto_presentacion por cod_producto
         public producto_presentacion ObtenerProductoPresentacionPorCodigo(int cod_producto)
         {
@@ -111,6 +114,61 @@ namespace Capa_Logica
         {
             return classProducto.ObtenerProductoPorMarca(marca);
         }
+        public int CrearProducto(string nombre, int id_familia, int id_marca)
+        {
+            try
+            {
+                producto.nombre = nombre;
+                producto.id_familia = id_familia;
+                producto.id_marca = id_marca;
+                return classProducto.CrearProducto(producto);
+            }
+            catch (Exception ex)
+            {
+                classProducto.ErroresValidacion.Clear();
+                classProducto.ErroresValidacion.Add("Error al agregar el producto: " + ex.Message);
+                return -1;
+            }
+        }
+       public producto_presentacion CrearProductoPresentacion(int id_producto, int ID_presentacion, int cod_producto, decimal precioLista, int unidades_bulto, bool activo)
+        {
+            try
+            {
+                productoPresentacion.id_producto = id_producto;
+                productoPresentacion.ID_presentacion = ID_presentacion;
+                productoPresentacion.cod_producto = cod_producto;
+                productoPresentacion.precioLista = precioLista;
+                productoPresentacion.unidades_bulto = unidades_bulto;
+                productoPresentacion.activo = activo;
+                return classProducto.CrearProductoPresentacion(productoPresentacion);
+            }
+            catch (Exception ex)
+            {
+                classProducto.ErroresValidacion.Clear();
+                classProducto.ErroresValidacion.Add("Error al agregar el producto: " + ex.Message);
+                return null;
+            }
+        }
+        public stock CrearStock(int stock_actual, int umbral_stock, int id_producto, int ID_presentacion)
+        {
+            try
+            {
+                stock nuevoStock = new stock();
+                nuevoStock.stock_actual = stock_actual;
+                nuevoStock.umbral_stock = umbral_stock;
+                nuevoStock.id_producto = id_producto;
+                nuevoStock.ID_presentacion = ID_presentacion;
+
+                return classProducto.CrearStock(nuevoStock);
+            }
+            catch (Exception ex)
+            {
+                classProducto.ErroresValidacion.Clear();
+                classProducto.ErroresValidacion.Add("Error al agregar el stock: " + ex.Message);
+                return null;
+            }
+        }
+
     }
 }
 

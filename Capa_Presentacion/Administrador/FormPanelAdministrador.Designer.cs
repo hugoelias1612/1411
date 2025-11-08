@@ -30,7 +30,7 @@
         {
             this.TLPMAIN = new System.Windows.Forms.TableLayoutPanel();
             this.gbxAdmin = new System.Windows.Forms.GroupBox();
-            this.Accion4 = new System.Windows.Forms.Button();
+            this.btnAuditoria = new System.Windows.Forms.Button();
             this.Accion3 = new System.Windows.Forms.Button();
             this.Accion2 = new System.Windows.Forms.Button();
             this.Accion1 = new System.Windows.Forms.Button();
@@ -83,7 +83,7 @@
             this.gbxAdmin.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.gbxAdmin.BackColor = System.Drawing.Color.LightSteelBlue;
             this.gbxAdmin.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.gbxAdmin.Controls.Add(this.Accion4);
+            this.gbxAdmin.Controls.Add(this.btnAuditoria);
             this.gbxAdmin.Controls.Add(this.Accion3);
             this.gbxAdmin.Controls.Add(this.Accion2);
             this.gbxAdmin.Controls.Add(this.Accion1);
@@ -99,18 +99,19 @@
             this.gbxAdmin.Text = "Funciones Administrador";
             this.gbxAdmin.Enter += new System.EventHandler(this.gbxAdmin_Enter);
             // 
-            // Accion4
+            // btnAuditoria
             // 
-            this.Accion4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(108)))), ((int)(((byte)(160)))));
-            this.Accion4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Accion4.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.Accion4.Location = new System.Drawing.Point(49, 189);
-            this.Accion4.Margin = new System.Windows.Forms.Padding(4);
-            this.Accion4.Name = "Accion4";
-            this.Accion4.Size = new System.Drawing.Size(385, 43);
-            this.Accion4.TabIndex = 4;
-            this.Accion4.Text = "Auditoria";
-            this.Accion4.UseVisualStyleBackColor = false;
+            this.btnAuditoria.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(108)))), ((int)(((byte)(160)))));
+            this.btnAuditoria.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAuditoria.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnAuditoria.Location = new System.Drawing.Point(49, 189);
+            this.btnAuditoria.Margin = new System.Windows.Forms.Padding(4);
+            this.btnAuditoria.Name = "btnAuditoria";
+            this.btnAuditoria.Size = new System.Drawing.Size(385, 43);
+            this.btnAuditoria.TabIndex = 4;
+            this.btnAuditoria.Text = "Auditoria";
+            this.btnAuditoria.UseVisualStyleBackColor = false;
+            this.btnAuditoria.Click += new System.EventHandler(this.btnAuditoria_Click);
             // 
             // Accion3
             // 
@@ -289,9 +290,9 @@
             this.label2.Location = new System.Drawing.Point(4, 48);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(515, 38);
+            this.label2.Size = new System.Drawing.Size(351, 38);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Bienvenido, Administrador (ID: admin01)";
+            this.label2.Text = "Bienvenido, Administrador ";
             // 
             // lblFECHA
             // 
@@ -416,7 +417,7 @@
         private System.Windows.Forms.GroupBox gbxMDIiClientes;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox gbxAdmin;
-        private System.Windows.Forms.Button Accion4;
+        private System.Windows.Forms.Button btnAuditoria;
         private System.Windows.Forms.Button Accion3;
         private System.Windows.Forms.Button Accion2;
         private System.Windows.Forms.Button Accion1;

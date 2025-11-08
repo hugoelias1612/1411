@@ -385,6 +385,7 @@
             this.dataGridViewModificarPedidos.TabIndex = 4;
             this.dataGridViewModificarPedidos.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewModificarPedidos_CellContentClick);
             this.dataGridViewModificarPedidos.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridViewModificarPedidos_CellFormatting);
+            this.dataGridViewModificarPedidos.SelectionChanged += new System.EventHandler(this.dataGridViewModificarPedidos_SelectionChanged);
             // 
             // tableLayoutPanel6
             // 
@@ -398,7 +399,7 @@
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.89788F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.20777F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.88215F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 199F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 222F));
             this.tableLayoutPanel6.Controls.Add(this.btnModificarPedido, 0, 0);
             this.tableLayoutPanel6.Controls.Add(this.comboBoxEstados, 4, 0);
             this.tableLayoutPanel6.Controls.Add(this.lblEstadoPedido, 3, 0);
@@ -438,9 +439,9 @@
             "Entregado",
             "Cancelado",
             "Retrasado"});
-            this.comboBoxEstados.Location = new System.Drawing.Point(699, 7);
+            this.comboBoxEstados.Location = new System.Drawing.Point(687, 7);
             this.comboBoxEstados.Name = "comboBoxEstados";
-            this.comboBoxEstados.Size = new System.Drawing.Size(183, 31);
+            this.comboBoxEstados.Size = new System.Drawing.Size(179, 31);
             this.comboBoxEstados.TabIndex = 13;
             this.comboBoxEstados.Text = "Seleccione Estado";
             // 
@@ -450,7 +451,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblEstadoPedido.AutoSize = true;
             this.lblEstadoPedido.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblEstadoPedido.Location = new System.Drawing.Point(575, 0);
+            this.lblEstadoPedido.Location = new System.Drawing.Point(563, 0);
             this.lblEstadoPedido.Name = "lblEstadoPedido";
             this.lblEstadoPedido.Size = new System.Drawing.Size(118, 45);
             this.lblEstadoPedido.TabIndex = 12;
@@ -461,7 +462,7 @@
             // 
             this.btnCancelarModificacion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCancelarModificacion.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancelarModificacion.Location = new System.Drawing.Point(1131, 3);
+            this.btnCancelarModificacion.Location = new System.Drawing.Point(1109, 3);
             this.btnCancelarModificacion.Name = "btnCancelarModificacion";
             this.btnCancelarModificacion.Size = new System.Drawing.Size(151, 39);
             this.btnCancelarModificacion.TabIndex = 8;
@@ -474,9 +475,9 @@
             this.dateTimePicker2.CalendarFont = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dateTimePicker2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dateTimePicker2.Location = new System.Drawing.Point(368, 3);
+            this.dateTimePicker2.Location = new System.Drawing.Point(364, 3);
             this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(167, 31);
+            this.dateTimePicker2.Size = new System.Drawing.Size(163, 31);
             this.dateTimePicker2.TabIndex = 11;
             // 
             // lblFechaEntrega
@@ -485,7 +486,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFechaEntrega.AutoSize = true;
             this.lblFechaEntrega.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFechaEntrega.Location = new System.Drawing.Point(244, 0);
+            this.lblFechaEntrega.Location = new System.Drawing.Point(240, 0);
             this.lblFechaEntrega.Name = "lblFechaEntrega";
             this.lblFechaEntrega.Size = new System.Drawing.Size(118, 45);
             this.lblFechaEntrega.TabIndex = 2;
@@ -496,7 +497,7 @@
             // 
             this.lblDetalles.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblDetalles.AutoSize = true;
-            this.lblDetalles.Location = new System.Drawing.Point(909, 7);
+            this.lblDetalles.Location = new System.Drawing.Point(890, 7);
             this.lblDetalles.Name = "lblDetalles";
             this.lblDetalles.Size = new System.Drawing.Size(195, 31);
             this.lblDetalles.TabIndex = 0;

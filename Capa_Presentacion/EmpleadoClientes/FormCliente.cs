@@ -19,6 +19,7 @@ namespace ArimaERP.EmpleadoClientes
     public partial class FormCliente : Form
     {
         private ClassClienteLogica clienteLogica = new ClassClienteLogica();
+        ClassAuditoriaLogica auditoria = new ClassAuditoriaLogica();
         private bool limpiarPresionado = false;
 
         public FormCliente()
@@ -447,25 +448,83 @@ namespace ArimaERP.EmpleadoClientes
             }
 
 
-            if (clienteLogica.AgregarCliente(txtBoxNombre.Text, txtBoxApellido.Text, id_tamano, id_zona, dateTimePickerFechaAlta.Value, txtMail.Text, txtBoxMovil.Text, txtBoxDni.Text, txtBoxCuil.Text, txtBoxCalle.Text, txtNumero.Text, txtBoxLocalidad.Text, txtBoxProvincia.Text, txtRazonSocial.Text, checkBoxActivo.Checked, checkBoxConfiable.Checked, comboBoxCondicionFrenteIVA.Text, txtCodigoPostal.Text))
-             {
-                // Si todos los campos son válidos mostrar mensaje de éxito
-                MessageBox.Show("Cliente guardado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-             }
-             else 
-              
-             {
+            var idCliente = clienteLogica.AgregarCliente(
+              txtBoxNombre.Text, txtBoxApellido.Text, id_tamano, id_zona, dateTimePickerFechaAlta.Value,
+              txtMail.Text, txtBoxMovil.Text, txtBoxDni.Text, txtBoxCuil.Text, txtBoxCalle.Text, txtNumero.Text,
+              txtBoxLocalidad.Text, txtBoxProvincia.Text, txtRazonSocial.Text, checkBoxActivo.Checked,
+              checkBoxConfiable.Checked, comboBoxCondicionFrenteIVA.Text, txtCodigoPostal.Text
+            );
 
-                // Si ocurre un error al guardar, mostrar mensaje de error
+            string usuarioActual = ObtenerUsuarioActual();
 
+            if (idCliente.HasValue)
+            {
+                int id = idCliente.Value;
+                var cliente = clienteLogica.ObtenerClientePorId(id);
+
+                if (cliente != null)
+                {
+                    string valorNuevo =
+                    $"{cliente.nombre}, {cliente.apellido}, DNI: {cliente.dni}, " +
+                    $"CUIL/CUIT: {cliente.cuil_cuit}, {cliente.email}, " +
+                    $"Calle: {cliente.calle} Numero: {cliente.numero}, Ciudad: {cliente.ciudad}, " +
+                    $"Fecha Alta: {cliente.fecha_alta:dd/MM/yyyy}, Estado: {(cliente.estado ? "Activo" : "Inactivo")} "
+                    ;
+
+                    bool registrado = auditoria.Registrar(
+                        valorAnterior: "-",
+                        valorNuevo: valorNuevo,
+                        nombreAccion: "Alta",
+                        nombreEntidad: "CLIENTE",
+                        usuario: usuarioActual
+                    );
+
+                    if (!registrado)
+                    {
+                        MessageBox.Show("Cliente guardado, pero no se pudo registrar auditoría:\n" +
+                            string.Join("\n", auditoria.ErroresValidacion),
+                            "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Cliente guardado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    // Si el cliente es confiable, crear cuenta corriente
+                    if (cliente.confiable)
+                    {
+                        bool cuentaCreada = clienteLogica.CrearCuentaCorriente(cliente.id_cliente, 0);
+
+                        if (cuentaCreada)
+                        {
+                            MessageBox.Show("Cuenta corriente creada para el cliente confiable.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("No se pudo crear la cuenta corriente para el cliente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No se pudo obtener los datos del cliente para registrar auditoría.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
                 foreach (var error in clienteLogica.ErroresValidacion)
                 {
                     MessageBox.Show(error, "Error de validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
 
+
         }
-        
+        private string ObtenerUsuarioActual()
+        {
+            // Aquí debes implementar la lógica para obtener el nombre del usuario actual
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
+        }
+
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             //Cerrar el formulario sin guardar cambios

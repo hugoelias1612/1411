@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.lblPagos = new System.Windows.Forms.Label();
             this.btnPedidos = new System.Windows.Forms.Button();
@@ -152,13 +156,34 @@
             // 
             // dataGridViewDetallePagos
             // 
+            this.dataGridViewDetallePagos.AllowUserToResizeColumns = false;
+            this.dataGridViewDetallePagos.AllowUserToResizeRows = false;
             this.dataGridViewDetallePagos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewDetallePagos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewDetallePagos.BackgroundColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewDetallePagos.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridViewDetallePagos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewDetallePagos.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewDetallePagos.GridColor = System.Drawing.SystemColors.Window;
             this.dataGridViewDetallePagos.Location = new System.Drawing.Point(23, 360);
             this.dataGridViewDetallePagos.Name = "dataGridViewDetallePagos";
+            this.dataGridViewDetallePagos.ReadOnly = true;
+            this.dataGridViewDetallePagos.RowHeadersVisible = false;
             this.dataGridViewDetallePagos.RowHeadersWidth = 51;
             this.dataGridViewDetallePagos.RowTemplate.Height = 24;
             this.dataGridViewDetallePagos.Size = new System.Drawing.Size(1328, 131);
@@ -203,7 +228,7 @@
             this.tableLayoutPanelRegistrarPago.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70.93596F));
             this.tableLayoutPanelRegistrarPago.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 161F));
             this.tableLayoutPanelRegistrarPago.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 306F));
-            this.tableLayoutPanelRegistrarPago.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 183F));
+            this.tableLayoutPanelRegistrarPago.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 184F));
             this.tableLayoutPanelRegistrarPago.Controls.Add(this.lblIdCliente, 1, 1);
             this.tableLayoutPanelRegistrarPago.Controls.Add(this.txtMonto, 4, 0);
             this.tableLayoutPanelRegistrarPago.Controls.Add(this.lblCliente, 1, 0);
@@ -228,7 +253,7 @@
             this.lblIdCliente.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblIdCliente.AutoSize = true;
             this.lblIdCliente.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblIdCliente.Location = new System.Drawing.Point(217, 62);
+            this.lblIdCliente.Location = new System.Drawing.Point(216, 62);
             this.lblIdCliente.Name = "lblIdCliente";
             this.lblIdCliente.Size = new System.Drawing.Size(88, 25);
             this.lblIdCliente.TabIndex = 12;
@@ -238,7 +263,7 @@
             // 
             this.txtMonto.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtMonto.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtMonto.Location = new System.Drawing.Point(842, 9);
+            this.txtMonto.Location = new System.Drawing.Point(841, 9);
             this.txtMonto.Name = "txtMonto";
             this.txtMonto.Size = new System.Drawing.Size(243, 31);
             this.txtMonto.TabIndex = 8;
@@ -249,7 +274,7 @@
             this.lblCliente.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblCliente.AutoSize = true;
             this.lblCliente.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCliente.Location = new System.Drawing.Point(240, 12);
+            this.lblCliente.Location = new System.Drawing.Point(239, 12);
             this.lblCliente.Name = "lblCliente";
             this.lblCliente.Size = new System.Drawing.Size(65, 25);
             this.lblCliente.TabIndex = 0;
@@ -260,7 +285,7 @@
             this.lblMonto.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblMonto.AutoSize = true;
             this.lblMonto.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMonto.Location = new System.Drawing.Point(770, 12);
+            this.lblMonto.Location = new System.Drawing.Point(769, 12);
             this.lblMonto.Name = "lblMonto";
             this.lblMonto.Size = new System.Drawing.Size(66, 25);
             this.lblMonto.TabIndex = 2;
@@ -271,7 +296,7 @@
             this.lblMetodoPago.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblMetodoPago.AutoSize = true;
             this.lblMetodoPago.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMetodoPago.Location = new System.Drawing.Point(715, 62);
+            this.lblMetodoPago.Location = new System.Drawing.Point(714, 62);
             this.lblMetodoPago.Name = "lblMetodoPago";
             this.lblMetodoPago.Size = new System.Drawing.Size(121, 25);
             this.lblMetodoPago.TabIndex = 3;
@@ -281,7 +306,7 @@
             // 
             this.btnGuardar.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnGuardar.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGuardar.Location = new System.Drawing.Point(1154, 3);
+            this.btnGuardar.Location = new System.Drawing.Point(1153, 3);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(166, 44);
             this.btnGuardar.TabIndex = 5;
@@ -293,7 +318,7 @@
             // 
             this.textBoxCliente.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.textBoxCliente.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxCliente.Location = new System.Drawing.Point(311, 9);
+            this.textBoxCliente.Location = new System.Drawing.Point(310, 9);
             this.textBoxCliente.Name = "textBoxCliente";
             this.textBoxCliente.Size = new System.Drawing.Size(346, 31);
             this.textBoxCliente.TabIndex = 6;
@@ -303,7 +328,7 @@
             this.comboBoxMetodoPago.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.comboBoxMetodoPago.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboBoxMetodoPago.FormattingEnabled = true;
-            this.comboBoxMetodoPago.Location = new System.Drawing.Point(842, 58);
+            this.comboBoxMetodoPago.Location = new System.Drawing.Point(841, 58);
             this.comboBoxMetodoPago.Name = "comboBoxMetodoPago";
             this.comboBoxMetodoPago.Size = new System.Drawing.Size(241, 33);
             this.comboBoxMetodoPago.TabIndex = 9;
@@ -313,7 +338,7 @@
             // 
             this.txtIdCliente.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtIdCliente.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtIdCliente.Location = new System.Drawing.Point(311, 59);
+            this.txtIdCliente.Location = new System.Drawing.Point(310, 59);
             this.txtIdCliente.Name = "txtIdCliente";
             this.txtIdCliente.Size = new System.Drawing.Size(101, 31);
             this.txtIdCliente.TabIndex = 11;
@@ -585,7 +610,23 @@
             this.dataGridViewPedidos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewPedidos.BackgroundColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewPedidos.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridViewPedidos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewPedidos.DefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridViewPedidos.GridColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.dataGridViewPedidos.Location = new System.Drawing.Point(23, 146);
             this.dataGridViewPedidos.Name = "dataGridViewPedidos";

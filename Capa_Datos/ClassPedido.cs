@@ -1,6 +1,7 @@
 ﻿using Capa_Entidades;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Data.SqlClient;
 using System.Linq;
@@ -102,37 +103,6 @@ namespace Capa_Datos
                 {
                     foreach (var detalle in detalles)
                     {
-                        // Obtener producto_presentacion para calcular unidades por bulto
-                        var productoPresentacion = context.producto_presentacion
-                            .FirstOrDefault(pp => pp.id_producto == detalle.id_producto && pp.ID_presentacion == detalle.ID_presentacion);
-
-                        if (productoPresentacion == null)
-                        {
-                            ErroresValidacion.Add($"No se encontró presentación para el producto {detalle.id_producto}.");
-                            continue;
-                        }
-
-                        int unidadesTotales = (detalle.cantidad ?? 0) + (detalle.cantidad_bultos ?? 0) * productoPresentacion.unidades_bulto;
-
-                        // Obtener el stock correspondiente
-                        var stock = context.stock
-                            .FirstOrDefault(s => s.id_producto == detalle.id_producto && s.ID_presentacion == detalle.ID_presentacion);
-
-                        if (stock == null)
-                        {
-                            ErroresValidacion.Add($"No se encontró stock para el producto {detalle.id_producto} con presentación {detalle.ID_presentacion}.");
-                            continue;
-                        }
-
-                        // Verificar si hay suficiente stock (condición corregida)
-                        if (stock.stock_actual - unidadesTotales < 0)
-                        {
-                            ErroresValidacion.Add($"Stock insuficiente para el producto {detalle.id_producto}. Solicitado: {unidadesTotales}, Disponible: {stock.stock_actual}.");
-                            continue;
-                        }
-
-                        // Descontar del stock y agregar el detalle al contexto
-                        stock.stock_actual -= unidadesTotales;
                         context.DETALLE_PEDIDO.Add(detalle);
                     }
 
@@ -142,7 +112,6 @@ namespace Capa_Datos
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
-                ErroresValidacion.Clear();
                 foreach (var validationErrors in ex.EntityValidationErrors)
                 {
                     foreach (var error in validationErrors.ValidationErrors)
@@ -159,7 +128,6 @@ namespace Capa_Datos
             }
             catch (Exception ex)
             {
-                ErroresValidacion.Clear();
                 ErroresValidacion.Add("Error general al guardar detalles: " + ex.Message);
 
                 if (ex.InnerException != null)
@@ -375,6 +343,16 @@ namespace Capa_Datos
                 return context.PEDIDO.Where(p => p.id_cliente == id_cliente).ToList();
             }
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorIdCliente(int id_cliente)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => p.id_cliente == id_cliente && p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
         //Obtener todos los pedidos
         public List<PEDIDO> ObtenerTodosLosPedidos()
         {
@@ -383,6 +361,16 @@ namespace Capa_Datos
                 return context.PEDIDO.ToList();
             }
         }
+        public List<PEDIDO> ObtenerPedidosEntregados()
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
         //Obtener pedido por numero de factura
         public PEDIDO ObtenerPedidoPorNumeroFactura(int numero_factura)
         {
@@ -391,6 +379,15 @@ namespace Capa_Datos
                 return context.PEDIDO.FirstOrDefault(p => p.numero_factura == numero_factura);
             }
         }
+        public PEDIDO ObtenerPedidoEntregadoPorNumeroFactura(int numero_factura)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .FirstOrDefault(p => p.numero_factura == numero_factura && p.id_estado == 3);
+            }
+        }
+
         //Obtener pedidos por zona
         public List<PEDIDO> ObtenerPedidosPorZona(int id_zona)
         {
@@ -399,6 +396,45 @@ namespace Capa_Datos
                 var pedidos = from p in context.PEDIDO
                               join c in context.CLIENTE on p.id_cliente equals c.id_cliente
                               where c.id_zona == id_zona
+                              select p;
+                return pedidos.ToList();
+            }
+        }
+
+        public List<PEDIDO> ObtenerPedidosPendientesPorZona(int id_zona)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                var pedidos = from p in context.PEDIDO
+                              join c in context.CLIENTE on p.id_cliente equals c.id_cliente
+                              where c.id_zona == id_zona
+                              && p.id_estado == 1
+                              select p;
+                return pedidos.ToList();
+            }
+        }
+
+        public List<PEDIDO> ObtenerPedidosEntregadosPorZona(int id_zona)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                var pedidos = from p in context.PEDIDO
+                              join c in context.CLIENTE on p.id_cliente equals c.id_cliente
+                              where c.id_zona == id_zona
+                              && p.id_estado == 3
+                              select p;
+                return pedidos.ToList();
+            }
+        }
+
+        public List<PEDIDO> ObtenerPedidosCanceladosPorZona(int id_zona)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                var pedidos = from p in context.PEDIDO
+                              join c in context.CLIENTE on p.id_cliente equals c.id_cliente
+                              where c.id_zona == id_zona
+                              && p.id_estado == 4
                               select p;
                 return pedidos.ToList();
             }
@@ -419,6 +455,17 @@ namespace Capa_Datos
                 return context.PEDIDO.Where(p => p.fecha_entrega == fecha_entrega).ToList();
             }
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorFechaEntrega(DateTime fecha_entrega)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => DbFunctions.TruncateTime(p.fecha_entrega) == fecha_entrega.Date
+                                       && p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
         public List<PEDIDO> ObtenerPedidosPorFechaCreacion(DateTime fecha_creacion)
         {
             using (var context = new ArimaERPEntities())
@@ -426,6 +473,17 @@ namespace Capa_Datos
                 return context.PEDIDO.Where(p => p.fecha_creacion == fecha_creacion).ToList();
             }
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorFechaCreacion(DateTime fecha_creacion)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => DbFunctions.TruncateTime(p.fecha_creacion) == fecha_creacion.Date
+                                       && p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
         //Obtener pedidos de un monto menor o igual al indicado
         public List<PEDIDO> ObtenerPedidosPorMontoMaximo(decimal montoMaximo)
         {
@@ -434,6 +492,16 @@ namespace Capa_Datos
                 return context.PEDIDO.Where(p => p.total <= montoMaximo).ToList();
             }
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorMontoMaximo(decimal montoMaximo)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => p.total <= montoMaximo && p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
         //Obtener pedidos por vendedor
         public List<PEDIDO> ObtenerPedidosPorVendedor(string vendedor)
         {
@@ -442,23 +510,25 @@ namespace Capa_Datos
                 return context.PEDIDO.Where(p => p.vendedor == vendedor).ToList();
             }
         }
-        public bool EliminarPedido(int id_pedido)
+        public List<PEDIDO> ObtenerPedidosEntregadosPorVendedor(string vendedor)
         {
-            // Eliminar los DETALLE_PEDIDO relacionados y luego el PEDIDO
+            using (var context = new ArimaERPEntities())
+            {
+                return context.PEDIDO
+                              .Where(p => p.vendedor == vendedor && p.id_estado == 3)
+                              .ToList();
+            }
+        }
+
+        public bool EliminarPedido(int id_pedido)
+        {            
             try
             {
                 using (var context = new ArimaERPEntities())
                 {
                     var pedido = context.PEDIDO.FirstOrDefault(p => p.id_pedido == id_pedido);
                     if (pedido != null)
-                    {
-                        // Eliminar los detalles relacionados
-                        var detalles = context.DETALLE_PEDIDO.Where(d => d.id_pedido == id_pedido).ToList();
-                        foreach (var detalle in detalles)
-                        {
-                            context.DETALLE_PEDIDO.Remove(detalle);
-                        }
-
+                    {                      
                         // Eliminar el pedido
                         context.PEDIDO.Remove(pedido);
                         context.SaveChanges();
@@ -502,6 +572,41 @@ namespace Capa_Datos
                 return false;
             }
         }
+
+        
+        public bool ActualizarStock(int id_producto, int ID_presentacion, int cantidad)
+        {
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    var registroStock = context.stock.FirstOrDefault(s =>
+                        s.id_producto == id_producto &&
+                        s.ID_presentacion == ID_presentacion);
+
+                    if (registroStock != null)
+                    {
+                        registroStock.stock_actual += cantidad;
+                        context.SaveChanges();
+                        return true;
+                    }
+                    else
+                    {
+                        ErroresValidacion.Clear();
+                        ErroresValidacion.Add("No se encontró el registro de stock para el producto y presentación especificados.");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error al actualizar el stock: " + ex.Message);
+                return false;
+            }
+        }
+
+
         //Obtener ESTADO_PEDIDO  por id_estado
         public ESTADO_PEDIDO ObtenerEstadoPorId(int id_estado)
         {            
@@ -518,7 +623,22 @@ namespace Capa_Datos
                 ErroresValidacion.Add(ex.Message);
                 return null;
             }            
-        }       
+        }
+        
+
+        public List<PEDIDO> ObtenerPedidosPorZonaYEstado(int id_zona, int id_estado)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                var pedidos = from p in context.PEDIDO
+                              join c in context.CLIENTE on p.id_cliente equals c.id_cliente
+                              where c.id_zona == id_zona && p.id_estado == id_estado
+                              select p;
+
+                return pedidos.ToList();
+            }
+        }
+
     }
 }
 

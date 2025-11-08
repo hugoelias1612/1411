@@ -18,8 +18,8 @@
           </Key>
           <Property Name="ID_auditoria" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="fecha_hora" Type="datetime" Nullable="false" />
-          <Property Name="valor_nuevo" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="valor_anterior" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="valor_nuevo" Type="varchar" MaxLength="2500" Nullable="false" />
+          <Property Name="valor_anterior" Type="varchar" MaxLength="2500" Nullable="false" />
           <Property Name="ID_accion" Type="int" Nullable="false" />
           <Property Name="entidad_id" Type="int" Nullable="false" />
           <Property Name="usuario" Type="varchar" MaxLength="20" Nullable="false" />
@@ -62,7 +62,7 @@
           <Key>
             <PropertyRef Name="id_cliente" />
           </Key>
-          <Property Name="saldo_actual" Type="decimal" Precision="6" Scale="2" Nullable="false" />
+          <Property Name="saldo_actual" Type="decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="fecha_ultimo_movimiento" Type="date" Nullable="false" />
           <Property Name="id_cliente" Type="int" Nullable="false" />
         </EntityType>
@@ -84,7 +84,7 @@
             <PropertyRef Name="id_pedido" />
           </Key>
           <Property Name="cantidad" Type="int" />
-          <Property Name="descuento" Type="decimal" Precision="3" Scale="2" Nullable="false" />
+          <Property Name="descuento" Type="decimal" Precision="5" Scale="2" Nullable="false" />
           <Property Name="ID_detalle_pedido" Type="int" Nullable="false" />
           <Property Name="id_pedido" Type="int" Nullable="false" />
           <Property Name="id_producto" Type="int" Nullable="false" />
@@ -776,8 +776,8 @@
           </Key>
           <Property Name="ID_auditoria" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="fecha_hora" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="valor_nuevo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="valor_anterior" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="valor_nuevo" Type="String" MaxLength="2500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="valor_anterior" Type="String" MaxLength="2500" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ID_accion" Type="Int32" Nullable="false" />
           <Property Name="entidad_id" Type="Int32" Nullable="false" />
           <Property Name="usuario" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
@@ -830,7 +830,7 @@
           <Key>
             <PropertyRef Name="id_cliente" />
           </Key>
-          <Property Name="saldo_actual" Type="Decimal" Precision="6" Scale="2" Nullable="false" />
+          <Property Name="saldo_actual" Type="Decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="fecha_ultimo_movimiento" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="id_cliente" Type="Int32" Nullable="false" />
           <NavigationProperty Name="CLIENTE" Relationship="Self.FK_ID_CLIENTE_cuenta" FromRole="CUENTA_CORRIENTE" ToRole="CLIENTE" />
@@ -855,7 +855,7 @@
             <PropertyRef Name="id_pedido" />
           </Key>
           <Property Name="cantidad" Type="Int32" />
-          <Property Name="descuento" Type="Decimal" Precision="3" Scale="2" Nullable="false" />
+          <Property Name="descuento" Type="Decimal" Precision="5" Scale="2" Nullable="false" />
           <Property Name="ID_detalle_pedido" Type="Int32" Nullable="false" />
           <Property Name="id_pedido" Type="Int32" Nullable="false" />
           <Property Name="id_producto" Type="Int32" Nullable="false" />

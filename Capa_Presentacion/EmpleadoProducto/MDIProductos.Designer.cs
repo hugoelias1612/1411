@@ -33,7 +33,7 @@
             this.btnVolverPanel = new System.Windows.Forms.Button();
             this.btnComprar = new System.Windows.Forms.Button();
             this.lblFecha = new System.Windows.Forms.Label();
-            this.lblRol = new System.Windows.Forms.Label();
+            this.lblHora = new System.Windows.Forms.Label();
             this.lblNombre = new System.Windows.Forms.Label();
             this.btnSalir = new System.Windows.Forms.Button();
             this.btnBuscar = new System.Windows.Forms.Button();
@@ -54,7 +54,7 @@
             this.panel1.Controls.Add(this.btnVolverPanel);
             this.panel1.Controls.Add(this.btnComprar);
             this.panel1.Controls.Add(this.lblFecha);
-            this.panel1.Controls.Add(this.lblRol);
+            this.panel1.Controls.Add(this.lblHora);
             this.panel1.Controls.Add(this.lblNombre);
             this.panel1.Controls.Add(this.btnSalir);
             this.panel1.Controls.Add(this.btnBuscar);
@@ -102,21 +102,20 @@
             this.lblFecha.Location = new System.Drawing.Point(941, 80);
             this.lblFecha.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblFecha.Name = "lblFecha";
-            this.lblFecha.Size = new System.Drawing.Size(81, 32);
+            this.lblFecha.Size = new System.Drawing.Size(88, 32);
             this.lblFecha.TabIndex = 8;
-            this.lblFecha.Text = "Fecha:";
+            this.lblFecha.Text = "Fecha: ";
             // 
-            // lblRol
+            // lblHora
             // 
-            this.lblRol.AutoSize = true;
-            this.lblRol.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRol.Location = new System.Drawing.Point(941, 49);
-            this.lblRol.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblRol.Name = "lblRol";
-            this.lblRol.Size = new System.Drawing.Size(52, 32);
-            this.lblRol.TabIndex = 7;
-            this.lblRol.Text = "Rol:";
-            this.lblRol.Click += new System.EventHandler(this.lblRol_Click);
+            this.lblHora.AutoSize = true;
+            this.lblHora.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblHora.Location = new System.Drawing.Point(941, 49);
+            this.lblHora.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblHora.Name = "lblHora";
+            this.lblHora.Size = new System.Drawing.Size(77, 32);
+            this.lblHora.TabIndex = 7;
+            this.lblHora.Text = "Hora: ";
             // 
             // lblNombre
             // 
@@ -125,9 +124,9 @@
             this.lblNombre.Location = new System.Drawing.Point(941, 18);
             this.lblNombre.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblNombre.Name = "lblNombre";
-            this.lblNombre.Size = new System.Drawing.Size(107, 32);
+            this.lblNombre.Size = new System.Drawing.Size(114, 32);
             this.lblNombre.TabIndex = 6;
-            this.lblNombre.Text = "Nombre:";
+            this.lblNombre.Text = "Nombre: ";
             // 
             // btnSalir
             // 
@@ -223,7 +222,7 @@
             this.pnlContent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(108)))), ((int)(((byte)(160)))));
             this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlContent.Location = new System.Drawing.Point(0, 0);
-            this.pnlContent.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pnlContent.Margin = new System.Windows.Forms.Padding(4);
             this.pnlContent.Name = "pnlContent";
             this.pnlContent.Size = new System.Drawing.Size(1685, 701);
             this.pnlContent.TabIndex = 2;
@@ -242,6 +241,7 @@
             this.MinimizeBox = false;
             this.Name = "MDIProductos";
             this.Text = "MDIProductos";
+            this.Load += new System.EventHandler(this.MDIProductos_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.pnlVista.ResumeLayout(false);
@@ -261,8 +261,8 @@
         private System.Windows.Forms.Panel pnlContent;
         private System.Windows.Forms.Label lblNombre;
         private System.Windows.Forms.Label lblFecha;
-        private System.Windows.Forms.Label lblRol;
         private System.Windows.Forms.Button btnComprar;
         private System.Windows.Forms.Button btnVolverPanel;
+        private System.Windows.Forms.Label lblHora;
     }
 }

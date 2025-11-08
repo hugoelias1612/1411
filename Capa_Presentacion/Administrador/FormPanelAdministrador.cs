@@ -1,4 +1,6 @@
 ﻿using ArimaERP.EmpleadoClientes;
+using Capa_Entidades;
+using Capa_Logica;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +15,7 @@ namespace ArimaERP.Administrador
 {
     public partial class FormPanelAdministrador : Form
     {
+        
         public FormPanelAdministrador()
         {
             InitializeComponent();
@@ -22,6 +25,19 @@ namespace ArimaERP.Administrador
         {
             string fecha = DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy - hh:mm tt", new System.Globalization.CultureInfo("es-ES"));
             lblFECHA.Text = fecha;
+            //Obtener usuario actual
+            string usuarioActual = ObtenerUsuarioActual();
+            //obtener nombre de empleado de tabla Empleado partir de nombre_usuario que corresponde al usuario actual
+            Empleado empleado = new ClassEmpleadoLogica().ObtenerEmpleadoPorNombreUsuario(usuarioActual);
+            if (empleado != null)
+            {
+                label2.Text = $"Bienvenido, Administrador: {empleado.nombre} {empleado.apellido}";
+            }
+        }
+        private string ObtenerUsuarioActual()
+        {
+            // Aquí debes implementar la lógica para obtener el nombre del usuario actual
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -113,6 +129,20 @@ namespace ArimaERP.Administrador
             FormClosedEventHandler value = value1;
             formReportes.FormClosed += value;
             formReportes.Show();
+            this.Hide();
+        }
+
+
+        private void btnAuditoria_Click(object sender, EventArgs e)
+        {
+            //abrir FormAuditoria
+            //abrir formulario clientes
+            FormAuditoria formAuditoria = new FormAuditoria();
+            formAuditoria.StartPosition = FormStartPosition.CenterScreen;
+            FormClosedEventHandler value1 = (s, args) => this.Show();
+            FormClosedEventHandler value = value1;
+            formAuditoria.FormClosed += value;
+            formAuditoria.Show();
             this.Hide();
         }
     }

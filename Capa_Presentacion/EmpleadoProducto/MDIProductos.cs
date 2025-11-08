@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Capa_Entidades;
+using Capa_Logica;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,12 +15,11 @@ namespace ArimaERP.EmpleadoProducto
 {
     public partial class MDIProductos : Form
     {
+        ClassUsuarioLogica usuarioLogica = new ClassUsuarioLogica();
         public MDIProductos()
         {
             InitializeComponent();
-        }
-
-      
+        }     
 
         private void AbrirFormEnPanel(Form formHijo)
         {
@@ -36,14 +37,7 @@ namespace ArimaERP.EmpleadoProducto
 
             // Muestro el formulario
             formHijo.Show();
-        }
-
-
-
-        private void lblRol_Click(object sender, EventArgs e)
-        {
-
-        }
+        }        
 
         private void btnAlerta_Click(object sender, EventArgs e)
         {
@@ -54,7 +48,7 @@ namespace ArimaERP.EmpleadoProducto
         {
        
             AbrirFormEnPanel(new FormABM());
-    }
+        }
 
         private void btnComprar_Click(object sender, EventArgs e)
         {
@@ -76,6 +70,38 @@ namespace ArimaERP.EmpleadoProducto
         {
             // cerrar formulario MDIProductos
             this.Close();
+        }
+
+        private void MDIProductos_Load(object sender, EventArgs e)
+        {
+            lblFecha.Text = lblFecha.Text + DateTime.Now.ToString("dd/MM/yyyy");
+            lblHora.Text = lblHora.Text + DateTime.Now.ToString("HH:mm:ss");
+            //Obtener usuario actual
+            string usuarioActual = ObtenerUsuarioActual();
+            //Obtener usuario por nombre
+            var usuario = usuarioLogica.ObtenerUsuarioPorNombre(usuarioActual);
+            //obtener nombre de empleado de tabla Empleado partir de nombre_usuario que corresponde al usuario actual
+            Empleado empleado = new ClassEmpleadoLogica().ObtenerEmpleadoPorNombreUsuario(usuarioActual);
+            if (empleado != null)
+            {
+                if (usuario.id_rol == 6)
+                {
+                    lblNombre.Text = $"Vendedor: {empleado.nombre} {empleado.apellido}";
+                }
+                else if (usuario.id_rol == 8)
+                {
+                    lblNombre.Text = $"Administrador: {empleado.nombre} {empleado.apellido}";
+                }
+                else if (usuario.id_rol == 7)
+                {
+                    lblNombre.Text = $"Empleado Sector Productos:{empleado.nombre} {empleado.apellido}";
+                }
+
+            }
+        }
+        private string ObtenerUsuarioActual()
+        {
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
         }
     }
 }

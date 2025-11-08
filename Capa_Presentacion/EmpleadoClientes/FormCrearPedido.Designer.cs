@@ -52,7 +52,6 @@
             this.lblFechaEntrega = new System.Windows.Forms.Label();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.label9 = new System.Windows.Forms.Label();
-            this.lblTotalPedido = new System.Windows.Forms.Label();
             this.dataGridViewDetallePedido = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.lblVendedor = new System.Windows.Forms.Label();
@@ -87,7 +86,7 @@
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17.3913F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 63.27739F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 324F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 328F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnVerTodosClientes, 2, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -103,7 +102,7 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(532, 7);
+            this.label1.Location = new System.Drawing.Point(530, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(157, 31);
             this.label1.TabIndex = 0;
@@ -114,7 +113,7 @@
             // 
             this.btnVerTodosClientes.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnVerTodosClientes.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnVerTodosClientes.Location = new System.Drawing.Point(1072, 7);
+            this.btnVerTodosClientes.Location = new System.Drawing.Point(1070, 7);
             this.btnVerTodosClientes.Name = "btnVerTodosClientes";
             this.btnVerTodosClientes.Size = new System.Drawing.Size(191, 32);
             this.btnVerTodosClientes.TabIndex = 17;
@@ -132,7 +131,7 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 188F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 123F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 180F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 215F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 221F));
             this.tableLayoutPanel2.Controls.Add(this.lblZonaCliente, 4, 0);
             this.tableLayoutPanel2.Controls.Add(this.btnBuscarCliente, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.txtBuscarCliente, 1, 0);
@@ -153,7 +152,7 @@
             this.lblZonaCliente.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblZonaCliente.AutoSize = true;
             this.lblZonaCliente.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblZonaCliente.Location = new System.Drawing.Point(846, 7);
+            this.lblZonaCliente.Location = new System.Drawing.Point(839, 7);
             this.lblZonaCliente.Name = "lblZonaCliente";
             this.lblZonaCliente.Size = new System.Drawing.Size(52, 25);
             this.lblZonaCliente.TabIndex = 13;
@@ -163,7 +162,7 @@
             // 
             this.btnBuscarCliente.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnBuscarCliente.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBuscarCliente.Location = new System.Drawing.Point(10, 3);
+            this.btnBuscarCliente.Location = new System.Drawing.Point(9, 3);
             this.btnBuscarCliente.Name = "btnBuscarCliente";
             this.btnBuscarCliente.Size = new System.Drawing.Size(191, 32);
             this.btnBuscarCliente.TabIndex = 6;
@@ -174,15 +173,15 @@
             // txtBuscarCliente
             // 
             this.txtBuscarCliente.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtBuscarCliente.Location = new System.Drawing.Point(215, 3);
+            this.txtBuscarCliente.Location = new System.Drawing.Point(213, 3);
             this.txtBuscarCliente.Name = "txtBuscarCliente";
-            this.txtBuscarCliente.Size = new System.Drawing.Size(221, 30);
+            this.txtBuscarCliente.Size = new System.Drawing.Size(218, 30);
             this.txtBuscarCliente.TabIndex = 7;
             // 
             // btnRegistrarNuevo
             // 
             this.btnRegistrarNuevo.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRegistrarNuevo.Location = new System.Drawing.Point(1117, 3);
+            this.btnRegistrarNuevo.Location = new System.Drawing.Point(1110, 3);
             this.btnRegistrarNuevo.Name = "btnRegistrarNuevo";
             this.btnRegistrarNuevo.Size = new System.Drawing.Size(180, 33);
             this.btnRegistrarNuevo.TabIndex = 6;
@@ -193,7 +192,7 @@
             // textBoxDNI
             // 
             this.textBoxDNI.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxDNI.Location = new System.Drawing.Point(626, 3);
+            this.textBoxDNI.Location = new System.Drawing.Point(619, 3);
             this.textBoxDNI.Name = "textBoxDNI";
             this.textBoxDNI.Size = new System.Drawing.Size(178, 30);
             this.textBoxDNI.TabIndex = 11;
@@ -205,7 +204,7 @@
             this.label11.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(450, 7);
+            this.label11.Location = new System.Drawing.Point(444, 7);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(161, 25);
             this.label11.TabIndex = 12;
@@ -215,7 +214,7 @@
             // 
             this.comboBoxClienteZona.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboBoxClienteZona.FormattingEnabled = true;
-            this.comboBoxClienteZona.Location = new System.Drawing.Point(937, 3);
+            this.comboBoxClienteZona.Location = new System.Drawing.Point(930, 3);
             this.comboBoxClienteZona.Name = "comboBoxClienteZona";
             this.comboBoxClienteZona.Size = new System.Drawing.Size(174, 31);
             this.comboBoxClienteZona.TabIndex = 10;
@@ -314,12 +313,11 @@
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 252F));
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.74528F));
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.25472F));
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 440F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 444F));
             this.tableLayoutPanel5.Controls.Add(this.lblFechaHora, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.lblFechaEntrega, 1, 0);
             this.tableLayoutPanel5.Controls.Add(this.dateTimePicker1, 2, 0);
             this.tableLayoutPanel5.Controls.Add(this.label9, 3, 0);
-            this.tableLayoutPanel5.Controls.Add(this.lblTotalPedido, 4, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 62);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
@@ -364,22 +362,11 @@
             this.label9.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(715, 3);
+            this.label9.Location = new System.Drawing.Point(712, 3);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(79, 25);
             this.label9.TabIndex = 0;
             this.label9.Text = "DETALLE";
-            // 
-            // lblTotalPedido
-            // 
-            this.lblTotalPedido.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.lblTotalPedido.AutoSize = true;
-            this.lblTotalPedido.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTotalPedido.Location = new System.Drawing.Point(1043, 1);
-            this.lblTotalPedido.Name = "lblTotalPedido";
-            this.lblTotalPedido.Size = new System.Drawing.Size(84, 28);
-            this.lblTotalPedido.TabIndex = 11;
-            this.lblTotalPedido.Text = " Total: $ ";
             // 
             // dataGridViewDetallePedido
             // 
@@ -390,15 +377,16 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewDetallePedido.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dataGridViewDetallePedido.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewDetallePedido.Location = new System.Drawing.Point(0, 107);
+            this.dataGridViewDetallePedido.Location = new System.Drawing.Point(0, 114);
             this.dataGridViewDetallePedido.Name = "dataGridViewDetallePedido";
             this.dataGridViewDetallePedido.ReadOnly = true;
             this.dataGridViewDetallePedido.RowHeadersVisible = false;
             this.dataGridViewDetallePedido.RowHeadersWidth = 51;
             this.dataGridViewDetallePedido.RowTemplate.Height = 24;
-            this.dataGridViewDetallePedido.Size = new System.Drawing.Size(1306, 164);
+            this.dataGridViewDetallePedido.Size = new System.Drawing.Size(1306, 179);
             this.dataGridViewDetallePedido.TabIndex = 6;
             this.dataGridViewDetallePedido.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewDetallePedido_CellContentClick);
+            this.dataGridViewDetallePedido.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dataGridViewDetallePedido_CellValidating);
             this.dataGridViewDetallePedido.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewDetallePedido_CellValueChanged);
             this.dataGridViewDetallePedido.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridViewDetallePedido_CurrentCellDirtyStateChanged);
             this.dataGridViewDetallePedido.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dataGridViewDetallePedido_KeyPress);
@@ -454,13 +442,13 @@
             this.dgvResultados.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvResultados.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvResultados.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvResultados.Location = new System.Drawing.Point(15, 95);
+            this.dgvResultados.Location = new System.Drawing.Point(15, 88);
             this.dgvResultados.Name = "dgvResultados";
             this.dgvResultados.ReadOnly = true;
             this.dgvResultados.RowHeadersVisible = false;
             this.dgvResultados.RowHeadersWidth = 51;
             this.dgvResultados.RowTemplate.Height = 24;
-            this.dgvResultados.Size = new System.Drawing.Size(1306, 134);
+            this.dgvResultados.Size = new System.Drawing.Size(1306, 146);
             this.dgvResultados.TabIndex = 3;
             this.dgvResultados.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResultados_CellDoubleClick);
             this.dgvResultados.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dgvResultados_KeyDown);
@@ -474,13 +462,13 @@
             this.dataGridViewProductos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewProductos.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dataGridViewProductos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewProductos.Location = new System.Drawing.Point(260, 284);
+            this.dataGridViewProductos.Location = new System.Drawing.Point(170, 284);
             this.dataGridViewProductos.Name = "dataGridViewProductos";
             this.dataGridViewProductos.ReadOnly = true;
             this.dataGridViewProductos.RowHeadersVisible = false;
             this.dataGridViewProductos.RowHeadersWidth = 51;
             this.dataGridViewProductos.RowTemplate.Height = 24;
-            this.dataGridViewProductos.Size = new System.Drawing.Size(798, 114);
+            this.dataGridViewProductos.Size = new System.Drawing.Size(973, 118);
             this.dataGridViewProductos.TabIndex = 5;
             this.dataGridViewProductos.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewProductos_CellContentClick);
             this.dataGridViewProductos.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewProductos_CellContentDoubleClick);
@@ -509,7 +497,7 @@
             this.tableLayoutPanel4.Controls.Add(this.textBoxCodigo, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.lblFamilia, 2, 0);
             this.tableLayoutPanel4.Controls.Add(this.btnVerTodos, 7, 0);
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(15, 238);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(15, 240);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 39F));
@@ -667,7 +655,6 @@
         private System.Windows.Forms.Button btnCancelarPedido;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
         private System.Windows.Forms.Label lblFechaEntrega;
-        private System.Windows.Forms.Label lblTotalPedido;
         private System.Windows.Forms.TextBox textBoxDNI;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ErrorProvider errorProvider1;

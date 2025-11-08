@@ -20,6 +20,7 @@ namespace ArimaERP.EmpleadoClientes
         private ClassUsuarioLogica usuarios = new ClassUsuarioLogica();
         private ClassEmpleadoLogica empleado = new ClassEmpleadoLogica();
         private ClassZonaLogica zona = new ClassZonaLogica();
+        ClassAuditoriaLogica auditoriaLogica = new ClassAuditoriaLogica();
         public FormBajaCliente()
         {
             InitializeComponent();
@@ -353,6 +354,7 @@ namespace ArimaERP.EmpleadoClientes
 
             // Obtener el ID del cliente desde la fila
             int idCliente = Convert.ToInt32(dataGridViewBajaCliente.Rows[e.RowIndex].Cells["id_cliente"].Value);
+            var clienteActivo = clienteLogica.ObtenerClientePorId(idCliente);
             //verificar si ya se encuentra inactivo
             bool estadoCliente = dataGridViewBajaCliente.Rows[e.RowIndex].Cells["estado"].Value.ToString() == "Activo";
             if (!estadoCliente && columna.Name == "btnDarDeBaja")
@@ -370,7 +372,32 @@ namespace ArimaERP.EmpleadoClientes
                     {
                         dataGridViewBajaCliente.Rows[e.RowIndex].Cells["btnDarDeBaja"].ReadOnly = true;
                         MessageBox.Show("Cliente dado de baja correctamente.");
-                        ActualizarGrilla(); // Método que recarga los datos
+                        ActualizarGrilla();
+
+                        // Auditoría de baja
+                        string usuarioActual = ObtenerUsuarioActual();
+                        string valorAnterior =
+                            $"{clienteActivo.nombre}, {clienteActivo.apellido}, DNI: {clienteActivo.dni}, " +
+                            $"CUIL/CUIT: {clienteActivo.cuil_cuit}, Estado: Activo";
+
+                        string valorNuevo =
+                            $"{clienteActivo.nombre}, {clienteActivo.apellido}, DNI: {clienteActivo.dni}, " +
+                            $"CUIL/CUIT: {clienteActivo.cuil_cuit}, Estado: Inactivo";
+
+                        bool registrado = auditoriaLogica.Registrar(
+                            valorAnterior: valorAnterior,
+                            valorNuevo: valorNuevo,
+                            nombreAccion: "Baja",
+                            nombreEntidad: "CLIENTE",
+                            usuario: usuarioActual
+                        );
+
+                        if (!registrado)
+                        {
+                            MessageBox.Show("Cliente dado de baja, pero no se pudo registrar auditoría:\n" +
+                                string.Join("\n", auditoriaLogica.ErroresValidacion),
+                                "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
 
 
                     }
@@ -397,7 +424,31 @@ namespace ArimaERP.EmpleadoClientes
                         dataGridViewBajaCliente.Rows[e.RowIndex].Cells["btnActivar"].ReadOnly = true;
                         MessageBox.Show("Cliente activado correctamente.");
                         ActualizarGrilla();
-                        //desativar btnActivar
+
+                        // Auditoría de activación
+                        string usuarioActual = ObtenerUsuarioActual();
+                        string valorAnterior =
+                            $"{clienteActivo.nombre}, {clienteActivo.apellido}, DNI: {clienteActivo.dni}, " +
+                            $"CUIL/CUIT: {clienteActivo.cuil_cuit}, Estado: Inactivo";
+
+                        string valorNuevo =
+                            $"{clienteActivo.nombre}, {clienteActivo.apellido}, DNI: {clienteActivo.dni}, " +
+                            $"CUIL/CUIT: {clienteActivo.cuil_cuit}, Estado: Activo";
+
+                        bool registrado = auditoriaLogica.Registrar(
+                            valorAnterior: valorAnterior,
+                            valorNuevo: valorNuevo,
+                            nombreAccion: "Activación",
+                            nombreEntidad: "CLIENTE",                        
+                            usuario: usuarioActual
+                        );
+
+                        if (!registrado)
+                        {
+                            MessageBox.Show("Cliente activado, pero no se pudo registrar auditoría:\n" +
+                                string.Join("\n", auditoriaLogica.ErroresValidacion),
+                                "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
                     }
                     else
                     {
@@ -405,6 +456,11 @@ namespace ArimaERP.EmpleadoClientes
                     }
                 }
             }
+        }
+        private string ObtenerUsuarioActual()
+        {
+
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
         }
         //actualizar grilla
         private void ActualizarGrilla()

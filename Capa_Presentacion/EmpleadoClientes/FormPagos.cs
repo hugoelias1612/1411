@@ -1,5 +1,7 @@
 ﻿using Capa_Entidades;
 using Capa_Logica;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -7,11 +9,13 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Font = iTextSharp.text.Font;
 
 namespace ArimaERP.EmpleadoClientes
 {
@@ -22,6 +26,9 @@ namespace ArimaERP.EmpleadoClientes
         ClassPedidoLogica pedidoLogica = new ClassPedidoLogica();
         ClassPagoLogica pagoLogica = new ClassPagoLogica();
         ClassUsuarioLogica usuarioLogica = new ClassUsuarioLogica();
+        ClassProductoLogica productoLogica = new ClassProductoLogica();
+        // Declarar btnPagar como campo de clase para que esté disponible en todo el formulario
+        private DataGridViewButtonColumn btnPagar;
         public FormPagos()
         {
             InitializeComponent();
@@ -44,13 +51,15 @@ namespace ArimaERP.EmpleadoClientes
             dataGridViewPedidos.Columns.Add("nombre_cliente", "Nombre Cliente");
             dataGridViewPedidos.Columns.Add("total", "Total");
             dataGridViewPedidos.Columns.Add("saldo", "Saldo");
+            dataGridViewPedidos.Columns.Add("estado_pago", "Estado de Pago");
             dataGridViewPedidos.Columns.Add("numero_factura", "Factura N°");
             dataGridViewPedidos.Columns.Add("vendedor", "Vendedor");
             //ocultar columna vendedor
             dataGridViewPedidos.Columns["vendedor"].Visible = false;
             dataGridViewPedidos.Columns.Add("nombre_vendedor", "Vendedor");
+
             //Agregar botón pagar
-            DataGridViewButtonColumn btnPagar = new DataGridViewButtonColumn();
+            btnPagar = new DataGridViewButtonColumn();
             btnPagar.HeaderText = "Generar Pago";
             btnPagar.Name = "pagar";
             btnPagar.Text = "Pagar";
@@ -82,7 +91,7 @@ namespace ArimaERP.EmpleadoClientes
             comboBoxMetodoPago.ValueMember = "id_metodo";
             comboBoxMetodoPago.SelectedIndex = -1; // No seleccionar nada al inicio
             //Cargar todos los pedidos en el dataGridViewPedidos
-            List<PEDIDO> todosLosPedidos = pedidoLogica.ObtenerTodosLosPedidos();
+            List<PEDIDO> todosLosPedidos = pedidoLogica.ObtenerPedidosEntregados();
             CargarPedidosEnDataGridView(todosLosPedidos);
             //Crear columnas de dataGridViewDetallePagos
             dataGridViewDetallePagos.Columns.Add("id_pago", "ID_Pago");
@@ -222,9 +231,34 @@ namespace ArimaERP.EmpleadoClientes
             }
 
             MessageBox.Show("Pago registrado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (pedido.numero_factura == null)
+            {
+                DialogResult resultado = MessageBox.Show(
+                    "¿Desea generar el comprobante de factura para este pedido?",
+                    "Generar factura",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
 
+                if (resultado == DialogResult.Yes)
+                {
+                    // Generar número de factura
+                    int numeroGenerado = pedidoLogica.GenerarNumeroFactura(idPedido);
+                    if (numeroGenerado > 0)
+                    {
+                        // Obtener detalles del pedido
+                        var detalles = pedidoLogica.ObtenerDetallesPedido(idPedido);
+                        // Generar el PDF
+                        GenerarComprobanteFactura(pedidoLogica.ObtenerPedidoPorId(idPedido), detalles);
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se pudo generar el número de factura.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
             // Refrescar grillas
-            CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
+            CargarPedidosEnDataGridView(pedidoLogica.ObtenerPedidosEntregados());
             btnLimpiar.PerformClick();
         }
 
@@ -247,7 +281,7 @@ namespace ArimaERP.EmpleadoClientes
 
                 if (idCliente.HasValue)
                 {
-                    List<PEDIDO> pedidos = pedidoLogica.ObtenerPedidosPorIdCliente(idCliente.Value);
+                    List<PEDIDO> pedidos = pedidoLogica.ObtenerPedidosEntregadosPorIdCliente(idCliente.Value);
                     CargarPedidosEnDataGridView(pedidos);
                 }
                 else
@@ -323,7 +357,7 @@ namespace ArimaERP.EmpleadoClientes
                     // Limpiar el DataGrid antes de cargar nuevos datos
                     dataGridViewPedidos.Rows.Clear();
                     // Obtener el pedido por número de factura
-                    PEDIDO pedido = pedidoLogica.ObtenerPedidoPorNumeroFactura(numeroFactura);
+                    PEDIDO pedido = pedidoLogica.ObtenerPedidoEntregadoPorNumeroFactura(numeroFactura);
                     if (pedido != null)
                     {
                         //Obtener CLIENTE por pedido.id_cliente
@@ -335,20 +369,33 @@ namespace ArimaERP.EmpleadoClientes
                         //Si el cliente no es confiable la fecha vencimiento es igual a la fecha_entrega si no la fecha vencimiento es igual a la fecha_entrega mas 5 días hábiles
                         DateTime fecha_vencimiento;
                         DateTime.TryParse(pedido.fecha_entrega.ToString("dd/MM/yyyy"), out fecha_vencimiento);
-                        decimal saldo;
+                        
                         /*Obtener el valor del saldo de la tabla pedido_pago para este id_pedido, si no se encuentra ningún registro para ese pedido
                          el saldo es igual al total del pedido*/
 
                         if (cliente.confiable)
                         {
-                            fecha_vencimiento = pedido.fecha_entrega;
-                            saldo = pagoLogica.ObtenerSaldoActual(pedido.id_pedido);
-                            if (saldo == 0)
-                                saldo = pedido.total;
+                            fecha_vencimiento = SumarDiasHabiles(pedido.fecha_entrega, 5);                           
+                            
                         }
                         else
                         {
-                            fecha_vencimiento = SumarDiasHabiles(pedido.fecha_entrega, 5);
+                            fecha_vencimiento = pedido.fecha_entrega;
+                            
+                        }
+
+                        decimal saldo;
+                        // Obtener el saldo actual del pedido desde base de datos
+                        var ultimoPago = pagoLogica.ObtenerUltimoPedidoPagoPorIdPedido(pedido.id_pedido);
+                        if (ultimoPago != null)
+                        {
+                            saldo = ultimoPago.saldo;
+                            
+
+                        }
+                        else
+                        {
+                            // No hay registros → usar el total del pedido como saldo inicial
                             saldo = pedido.total;
                         }
 
@@ -358,8 +405,8 @@ namespace ArimaERP.EmpleadoClientes
                             fecha_vencimiento.ToString("dd/MM/yyyy"),
                             pedido.id_cliente,
                             nombreCompleto,
-                            pedido.total.ToString("C"),
-                            saldo.ToString("C"),
+                            pedido.total.ToString(),
+                            saldo.ToString(),
                             pedido.numero_factura,
                             pedido.vendedor,
                             nombreVendedor
@@ -389,7 +436,7 @@ namespace ArimaERP.EmpleadoClientes
                     // Limpiar el DataGrid antes de cargar nuevos datos
                     dataGridViewPedidos.Rows.Clear();
                     // Obtener los pedidos por monto máximo
-                    List<PEDIDO> pedidosPorMonto = pedidoLogica.ObtenerPedidosPorMontoMaximo(montoMaximo);
+                    List<PEDIDO> pedidosPorMonto = pedidoLogica.ObtenerPedidosEntregadosPorMontoMaximo(montoMaximo);
                     CargarPedidosEnDataGridView(pedidosPorMonto);
                 }
                 else
@@ -404,55 +451,50 @@ namespace ArimaERP.EmpleadoClientes
 
             foreach (var pedido in pedidos)
             {
-                //Obtener CLIENTE por pedido.id_cliente
                 var cliente = clienteLogica.ObtenerClientePorId(pedido.id_cliente);
                 string nombreCompleto = $"{cliente.nombre} {cliente.apellido}";
-                //Si el cliente no es confiable la fecha vencimiento es igual a la fecha_entrega si no la fecha vencimiento es igual a la fecha_entrega mas 5 días hábiles
-                DateTime fecha_vencimiento;
-                DateTime.TryParse(pedido.fecha_entrega.ToString("dd/MM/yyyy"), out fecha_vencimiento);
 
-
-                if (cliente.confiable)
-                {
-                    fecha_vencimiento = pedido.fecha_entrega;
-                }
-
-                else
-                {
-                    fecha_vencimiento = SumarDiasHabiles(pedido.fecha_entrega, 5);
-                }
+                DateTime fecha_vencimiento = cliente.confiable
+                    ? SumarDiasHabiles(pedido.fecha_entrega, 5)
+                    : pedido.fecha_entrega;
 
                 decimal saldo;
-
-                // Obtener el saldo actual del pedido desde base de datos
                 var ultimoPago = pagoLogica.ObtenerUltimoPedidoPagoPorIdPedido(pedido.id_pedido);
-                if (ultimoPago != null)
-                {
-                    saldo = ultimoPago.saldo;                 
+                saldo = ultimoPago?.saldo ?? pedido.total;
 
-                }
-                else
-                {
-                    // No hay registros → usar el total del pedido como saldo
-                    saldo = pedido.total;
-                }
-
-                //Obtener VENDEDOR por pedido.vendedor
                 var empleado = empleadoLogica.ObtenerEmpleadoPorNombreUsuario(pedido.vendedor);
                 string nombreVendedor = $"{empleado.nombre} {empleado.apellido}";
-                dataGridViewPedidos.Rows.Add(
+
+                int rowIndex = dataGridViewPedidos.Rows.Add(
                     pedido.id_pedido,
-                            pedido.fecha_entrega.ToString("dd/MM/yyyy"),
-                            fecha_vencimiento.ToString("dd/MM/yyyy"),
-                            pedido.id_cliente,
-                            nombreCompleto,
-                            pedido.total,
-                            saldo,
-                            pedido.numero_factura,
-                            pedido.vendedor,
-                            nombreVendedor
+                    pedido.fecha_entrega.ToString("dd/MM/yyyy"),
+                    fecha_vencimiento.ToString("dd/MM/yyyy"),
+                    pedido.id_cliente,
+                    nombreCompleto,
+                    pedido.total,
+                    saldo,
+                    saldo == 0m ? "PAGADO" : "DEBE",
+                    pedido.numero_factura,
+                    pedido.vendedor,
+                    nombreVendedor                    
                 );
+
+                // Aplicar color
+                var estadoCell = dataGridViewPedidos.Rows[rowIndex].Cells["estado_pago"];
+                estadoCell.Style.ForeColor = saldo == 0m ? Color.Blue : Color.Red;
+                // Reemplaza la línea problemática en el método CargarPedidosEnDataGridView:
+                // estadoCell.Style.Font = new Font(dataGridViewPedidos.DefaultCellStyle.Font, FontStyle.Bold);
+
+                // Solución: Usa System.Drawing.Font directamente para establecer el estilo en el DataGridView.
+                // System.Drawing.Font tiene un constructor que acepta (Font font, FontStyle style).
+                estadoCell.Style.Font = new System.Drawing.Font(dataGridViewPedidos.DefaultCellStyle.Font, saldo == 0m ? FontStyle.Bold : FontStyle.Regular);
+                
+                // Inhabilitar botón "Pagar" si está pagado
+                var pagarCell = dataGridViewPedidos.Rows[rowIndex].Cells["pagar"];
+                pagarCell.ReadOnly = saldo == 0m;
+                pagarCell.Style.ForeColor = saldo == 0m ? Color.Gray : Color.Black;
             }
+
         }
 
         private void txtMonto_KeyPress(object sender, KeyPressEventArgs e)
@@ -476,9 +518,9 @@ namespace ArimaERP.EmpleadoClientes
 
         private void btnFechaEntrega_Click(object sender, EventArgs e)
         {
-            //Obtener todos los pedidos con la fecha de entrega indicada en dateTimePicker1
+            //Obtener todos los pedidos con la fecha de Vencimiento indicada en dateTimePicker1
             DateTime fechaSeleccionada = dateTimePicker1.Value.Date;
-            List<PEDIDO> pedidosPorFecha = pedidoLogica.ObtenerPedidosPorFechaEntrega(fechaSeleccionada);
+            List<PEDIDO> pedidosPorFecha = pedidoLogica.ObtenerPedidosEntregadosPorFechaEntrega(fechaSeleccionada);
             CargarPedidosEnDataGridView(pedidosPorFecha);
         }
 
@@ -486,7 +528,7 @@ namespace ArimaERP.EmpleadoClientes
         {
             //Obtener todos los pedidos con la fecha de creación indicada en dateTimePicker4
             DateTime fechaSeleccionada = dateTimePicker4.Value.Date;
-            List<PEDIDO> pedidosPorFecha = pedidoLogica.ObtenerPedidosPorFechaCreacion(fechaSeleccionada);
+            List<PEDIDO> pedidosPorFecha = pedidoLogica.ObtenerPedidosEntregadosPorFechaCreacion(fechaSeleccionada);
             CargarPedidosEnDataGridView(pedidosPorFecha);
         }
 
@@ -502,7 +544,7 @@ namespace ArimaERP.EmpleadoClientes
 
                 foreach (var cliente in clientesEnZona)
                 {
-                    List<PEDIDO> pedidosDelCliente = pedidoLogica.ObtenerPedidosPorIdCliente(cliente.id_cliente);
+                    List<PEDIDO> pedidosDelCliente = pedidoLogica.ObtenerPedidosEntregadosPorIdCliente(cliente.id_cliente);
                     //cargar pedidos en dataGridViewModificarPedidos
                     CargarPedidosEnDataGridView(pedidosDelCliente);
                 }
@@ -567,7 +609,7 @@ namespace ArimaERP.EmpleadoClientes
                 dataGridViewPedidos.Rows.Clear();
                 {
                     // Obtener los pedidos del empleado
-                    List<PEDIDO> pedidos = pedidoLogica.ObtenerPedidosPorVendedor(empleado.nombre_usuario);
+                    List<PEDIDO> pedidos = pedidoLogica.ObtenerPedidosEntregadosPorVendedor(empleado.nombre_usuario);
                     CargarPedidosEnDataGridView(pedidos);
                 }
 
@@ -613,42 +655,42 @@ namespace ArimaERP.EmpleadoClientes
             {
                 /*Si el cliente no es confiable el monto a pagar tiene que ser el saldo total  del pedido, cargar en el txtMonto y no permitir editar txtMonto,
                  y si es confiable puede abonar una valor menor al total del pedido, también cargar el saldo en el txtMonto y permitir editar txtMonto */
-
                 // Obtener el id_pedido de la fila seleccionada
                 int idPedido = Convert.ToInt32(dataGridViewPedidos.Rows[e.RowIndex].Cells["id_pedido"].Value);
+                var ultimoPedidoPago = pagoLogica.ObtenerUltimoPedidoPagoPorIdPedido(idPedido);
                 //Obtener PEDIDO por id_pedido
                 var pedido = pedidoLogica.ObtenerPedidoPorId(idPedido);
                 // Obtener el cliente asociado al pedido
-                int idCliente = Convert.ToInt32(dataGridViewPedidos.Rows[e.RowIndex].Cells["id_cliente"].Value);
-         
-                //Cargar id_cliente en txtIdCliente
-                txtIdCliente.Text = idCliente.ToString();
+                int idCliente = pedido.id_cliente;
                 var cliente = clienteLogica.ObtenerClientePorId(idCliente);
-                //Mostrar nombre del cliente en textBoxCliente
-                textBoxCliente.Text = $" {cliente.nombre} {cliente.apellido}";                       
-                               
-                decimal saldo;
-               
-                // Obtener el saldo actual del pedido desde base de datos
-                var ultimoPago = pagoLogica.ObtenerUltimoPedidoPagoPorIdPedido(idPedido);
-                if (ultimoPago != null)
-                {
-                    saldo= ultimoPago.saldo;
-                    //Si el saldo es 0.00, el pedido se encuentra completamente abonado
-                    if (saldo == 0m)
-                    {
-                        MessageBox.Show("El pedido ya se encuentra completamente abonado.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        return; // Salir del flujo de pago
-                    }
 
+                if (ultimoPedidoPago != null)
+                {
+                    decimal ultimoSaldo = ultimoPedidoPago.saldo;
+                    if (ultimoSaldo == 0m)
+                    {
+                        MessageBox.Show("Este pedido ya está pagado. No se puede generar un nuevo pago.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                    else if(cliente.confiable)
+                    {
+                        txtMonto.Text = ultimoSaldo.ToString();
+                    }
                 }
                 else
                 {
-                    // No hay registros → usar el total del pedido como saldo inicial
-                    saldo = pedido.total;
+                    txtMonto.Text = pedido.total.ToString();
                 }
+                    
+               
+         
+                //Cargar id_cliente en txtIdCliente
+                txtIdCliente.Text = idCliente.ToString();
                 
-                txtMonto.Text = saldo.ToString();
+                //Mostrar nombre del cliente en textBoxCliente
+                textBoxCliente.Text = $" {cliente.nombre} {cliente.apellido}";                   
+                          
+                 
                 //Si el cliente es confiable puede editar txtMonto
                 if (cliente.confiable)
                 {
@@ -664,8 +706,90 @@ namespace ArimaERP.EmpleadoClientes
 
         private void btnPedidos_Click(object sender, EventArgs e)
         {
-            CargarPedidosEnDataGridView(pedidoLogica.ObtenerTodosLosPedidos());
+            CargarPedidosEnDataGridView(pedidoLogica.ObtenerPedidosEntregados());
         }
-        
+        private void GenerarComprobanteFactura(PEDIDO pedido, List<DETALLE_PEDIDO> detalles)
+        {
+            string nombreArchivo = pedido.id_estado == 4 ? $"Factura_{pedido.numero_factura}_ANULADA.pdf" : $"Factura_{pedido.numero_factura}.pdf";
+
+            string rutaArchivo = Path.Combine(Application.StartupPath, nombreArchivo);
+            Document doc = new Document();
+            PdfWriter.GetInstance(doc, new FileStream(rutaArchivo, FileMode.Create));
+            doc.Open();
+            // Verificar si el pedido está cancelado
+            var estadoPedido = pedido.id_estado;
+            bool esCancelado = estadoPedido == 4;
+            if (esCancelado)
+            {
+                // Agregar leyenda "ANULADO" en rojo y centrado
+                Paragraph anulacion = new Paragraph("ANULADO", FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 30, BaseColor.RED));
+                anulacion.Alignment = Element.ALIGN_CENTER;
+                doc.Add(anulacion);
+
+                // Espacio visual
+                doc.Add(new Paragraph("\n\n"));
+            }
+            var cliente = clienteLogica.ObtenerClientePorId(pedido.id_cliente);
+            var vendedor = empleadoLogica.ObtenerEmpleadoPorNombreUsuario(pedido.vendedor);
+            // Encabezado
+            doc.Add(new Paragraph($"Razón Social: Distribuidora J.K.     Factura N° 2025-{pedido.numero_factura}", FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16)));
+            doc.Add(new Paragraph("CUIT: 30-71234567-8"));
+            doc.Add(new Paragraph("I.V.A Responsable Inscripto"));
+            doc.Add(new Paragraph("Dirección Comercial: Av. Libertad 1450,Corrientes Capital, Corrientes, Argentina"));
+            doc.Add(new Paragraph("Teléfono: +54 9 (379) 4456789"));
+            doc.Add(new Paragraph("Sucursal: Corrientes Centro"));
+            doc.Add(new Paragraph("Inscripción AFIP: Nº 123456789 – Fecha de alta: 12/03/2010"));
+            doc.Add(new Paragraph("--------------------------------------------------"));
+            //Obtener fecha actual
+            DateTime fechaActual = DateTime.Now;
+            doc.Add(new Paragraph($"Fecha: {fechaActual.ToShortDateString()}"));
+            doc.Add(new Paragraph("--------------------------------------------------"));
+            doc.Add(new Paragraph($"Cliente: {cliente.nombre} {cliente.apellido}"));
+            doc.Add(new Paragraph($"DNI: {cliente.dni}"));
+            doc.Add(new Paragraph($"Dirección: {cliente.calle} {cliente.numero}, {cliente.ciudad}, {cliente.provincia}, CP: {cliente.cod_postal}"));
+            doc.Add(new Paragraph($"Condición frente al IVA: {cliente.condicion_frenteIVA}"));
+            doc.Add(new Paragraph("--------------------------------------------------"));
+            doc.Add(new Paragraph($"Vendedor: {vendedor.nombre} {vendedor.apellido}"));
+            doc.Add(new Paragraph("--------------------------------------------------"));
+            // Tabla de detalles
+            PdfPTable tabla = new PdfPTable(8);
+            tabla.WidthPercentage = 100;
+            tabla.SetWidths(new float[] { 2f, 2f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 2f });
+            Font fontHeader = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 8);
+            string[] encabezados = { "Producto", "Presentación", "Cant. Unidades", "Cant. Bultos", "Precio Unitario", "Subtotal", "Descuento", "Total Producto" };
+            foreach (string titulo in encabezados)
+            {
+                PdfPCell celda = new PdfPCell(new Phrase(titulo, fontHeader));
+                celda.BackgroundColor = BaseColor.LIGHT_GRAY;
+                celda.HorizontalAlignment = Element.ALIGN_CENTER;
+                celda.Padding = 3;
+                tabla.AddCell(celda);
+            }
+
+            foreach (var detalle in detalles)
+            {
+                var producto = productoLogica.ObtenerProductoPorId(detalle.id_producto);
+                var presentacion = productoLogica.ObtenerPresentacionPorId(detalle.ID_presentacion);
+                var productoPresentacion = productoLogica.ObtenerProductoPresentacionPorProductoYPresentacion(producto.id_producto, presentacion.ID_presentacion);
+                decimal subtotal = (detalle.cantidad ?? 0 + (detalle.cantidad_bultos ?? 0)) * detalle.precio_unitario;
+                decimal totalProducto = subtotal - detalle.descuento;
+                Font fontDetalle = FontFactory.GetFont(FontFactory.HELVETICA, 9); // mismo tamaño que fontHeader
+                tabla.AddCell(new Phrase(producto.nombre.ToString(), fontDetalle));
+                tabla.AddCell(new Phrase($"{presentacion.descripcion}\n{productoPresentacion.unidades_bulto} unidades/bulto", fontDetalle));
+                tabla.AddCell(new Phrase((detalle.cantidad ?? 0).ToString(), fontDetalle));
+                tabla.AddCell(new Phrase((detalle.cantidad_bultos ?? 0).ToString(), fontDetalle));
+                tabla.AddCell(new Phrase(detalle.precio_unitario.ToString("C"), fontDetalle));
+                tabla.AddCell(new Phrase(subtotal.ToString("C"), fontDetalle));
+                tabla.AddCell(new Phrase(detalle.descuento.ToString("C"), fontDetalle));
+                tabla.AddCell(new Phrase(totalProducto.ToString("C"), fontDetalle));
+            }
+            doc.Add(tabla);
+            // Total
+            doc.Add(new Paragraph("--------------------------------------------------"));
+            doc.Add(new Paragraph($"Total:      {pedido.total.ToString("C")}"));
+            doc.Close();
+            // Mostrar el PDF
+            System.Diagnostics.Process.Start(rutaArchivo);
+        }
     } 
 }

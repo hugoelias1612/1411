@@ -412,18 +412,20 @@ namespace ArimaERP.Preventista
                 return;
             }
 
-            
-             if(clienteLogica.AgregarCliente(txtBoxNombre.Text, txtBoxApellido.Text, "1", "1", dateTimePickerFechaAlta.Value, txtMail.Text, txtBoxMovil.Text, txtBoxDni.Text, txtBoxCuil.Text, txtBoxCalle.Text, txtNumero.Text, txtBoxLocalidad.Text, txtBoxProvincia.Text, txtRazonSocial.Text, checkBoxActivo.Checked, false, comboBoxCondicionFrenteIVA.Text, txtCodigoPostal.Text))
-             {
-                // Si todos los campos son válidos mostrar mensaje de éxito
+
+            var idCliente = clienteLogica.AgregarCliente(
+               txtBoxNombre.Text, txtBoxApellido.Text, "1", "1", dateTimePickerFechaAlta.Value,
+               txtMail.Text, txtBoxMovil.Text, txtBoxDni.Text, txtBoxCuil.Text, txtBoxCalle.Text, txtNumero.Text,
+               txtBoxLocalidad.Text, txtBoxProvincia.Text, txtRazonSocial.Text, checkBoxActivo.Checked,
+               false, comboBoxCondicionFrenteIVA.Text, txtCodigoPostal.Text
+               );
+
+            if (idCliente.HasValue)
+            {
                 MessageBox.Show("Cliente guardado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-             }
-             else 
-              
-             {
-
-                // Si ocurre un error al guardar, mostrar mensaje de error
-
+            }
+            else
+            {
                 foreach (var error in clienteLogica.ErroresValidacion)
                 {
                     MessageBox.Show(error, "Error de validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);

@@ -17,6 +17,7 @@ namespace ArimaERP.EmpleadoClientes
     {
         private ClassClienteLogica clienteLog = new ClassClienteLogica();
         private CLIENTE clienteActual;
+        ClassAuditoriaLogica auditoriaLogica = new ClassAuditoriaLogica();
         private bool limpiarPresionado = false;
 
 
@@ -111,23 +112,73 @@ namespace ArimaERP.EmpleadoClientes
 
             string id_tamano = comboBoxSeleccionarTamano.SelectedValue.ToString();
             string id_zona = comboBoxSeleccionarZona.SelectedValue.ToString();
+            
             CLIENTE clienteActualizado = clienteLog.ActualizarCliente(idCliente, txtBoxNombre.Text, txtBoxApellido.Text, id_tamano, id_zona, dateTimePickerFechaAlta.Value, txtMail.Text, txtBoxMovil.Text, txtBoxDni.Text, txtBoxCuil.Text, txtBoxCalle.Text, txtNumero.Text, txtBoxLocalidad.Text, txtBoxProvincia.Text, txtRazonSocial.Text, checkBoxActivo.Checked, checkBoxConfiable.Checked, comboBoxCondicionFrenteIVA.SelectedItem.ToString(), txtCodigoPostal.Text);
 
             if (clienteActualizado != null)
             {
+                // Auditoría de modificación
+                string usuarioActual = ObtenerUsuarioActual();
+
+                string valorAnterior =
+                    $"{clienteActual.nombre}, {clienteActual.apellido}, DNI: {clienteActual.dni}, " +
+                    $"CUIL/CUIT: {clienteActual.cuil_cuit}, {clienteActual.email}, " +
+                    $"Calle: {clienteActual.calle} Numero: {clienteActual.numero}, Ciudad: {clienteActual.ciudad}, " +
+                    $"Fecha Alta: {clienteActual.fecha_alta:dd/MM/yyyy}, Estado: {(clienteActual.estado ? "Activo" : "Inactivo")} "
+                    ;
+
+                string valorNuevo =
+                    $"{clienteActualizado.nombre}, {clienteActualizado.apellido}, DNI: {clienteActualizado.dni}, " +
+                    $"CUIL/CUIT: {clienteActualizado.cuil_cuit}, {clienteActualizado.email}, " +
+                    $"Calle: {clienteActualizado.calle} Numero: {clienteActualizado.numero}, Ciudad: {clienteActualizado.ciudad}, " +
+                    $"Fecha Alta: {clienteActualizado.fecha_alta:dd/MM/yyyy}, Estado: {(clienteActualizado.estado ? "Activo" : "Inactivo")} "
+                    ;
+
+                bool registrado = auditoriaLogica.Registrar(
+                    valorAnterior: valorAnterior,
+                    valorNuevo: valorNuevo,
+                    nombreAccion: "Modificacion",
+                    nombreEntidad: "CLIENTE",
+                    usuario: usuarioActual
+                );
+
+                if (!registrado)
+                {
+                    MessageBox.Show("Cliente actualizado, pero no se pudo registrar auditoría:\n" +
+                        string.Join("\n", auditoriaLogica.ErroresValidacion),
+                        "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                // Verificar si el cliente pasó de no confiable a confiable y está activo
+                if (clienteActualizado.estado && !clienteActual.confiable && clienteActualizado.confiable)
+                {
+                    bool cuentaCreada = clienteLog.CrearCuentaCorriente(clienteActualizado.id_cliente);
+
+                    if (!cuentaCreada)
+                    {
+                        MessageBox.Show("No se pudo crear la cuenta corriente para el cliente.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Cuenta Corriente creada con éxito");
+                    }
+                }
+
                 MessageBox.Show("Cliente actualizado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                this.Close(); // Cierra el formulario después de guardar los cambios
+                this.Close();
             }
             else
             {
                 string errores = string.Join("\n", clienteLog.ErroresValidacion);
                 MessageBox.Show("No se pudo actualizar el cliente. Errores:\n" + errores, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
-        
 
+        private string ObtenerUsuarioActual()
+        {
+
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
+        }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {

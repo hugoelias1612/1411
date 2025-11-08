@@ -12,7 +12,7 @@ namespace Capa_Datos
     public class ClassCliente
     {
         public List<string> ErroresValidacion { get; private set; } = new List<string>();
-        public Boolean SalvarCliente(CLIENTE cliente)
+        public int? SalvarCliente(CLIENTE cliente)
         {
             try
             {
@@ -21,7 +21,7 @@ namespace Capa_Datos
                     context.CLIENTE.Add(cliente);
                     context.SaveChanges();
                 }
-                return true;
+                return cliente.id_cliente;
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -35,7 +35,7 @@ namespace Capa_Datos
 
                     }
                 }
-                return false;
+                return null;
             }
         }
         //Devuelve lista de clientes
@@ -231,17 +231,11 @@ namespace Capa_Datos
                     }
                     else
                     {
-                        // Si no existe, crear nueva cuenta
-                        var nuevaCuenta = new CUENTA_CORRIENTE
-                        {
-                            id_cliente = idCliente,
-                            saldo_actual = monto,
-                            fecha_ultimo_movimiento = DateTime.Today
-                        };
-                        contexto.CUENTA_CORRIENTE.Add(nuevaCuenta);
-                        contexto.SaveChanges();
-                        return true;
+                        ErroresValidacion.Clear();
+                        ErroresValidacion.Add("No se encontró la cuenta corriente para el cliente.");
+                        return false;
                     }
+
                 }
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -264,7 +258,7 @@ namespace Capa_Datos
             catch (Exception ex)
             {
                 ErroresValidacion.Clear();
-                ErroresValidacion.Add("Error general al guardar saldo en cuenta corriente o crear cuenta corriente: " + ex.Message);
+                ErroresValidacion.Add("Error general al guardar saldo en cuenta corriente" + ex.Message);
 
                 if (ex.InnerException != null)
                     ErroresValidacion.Add("Inner: " + ex.InnerException.Message);
@@ -294,5 +288,64 @@ namespace Capa_Datos
                     .ToList();
             }
         }
+        //Crear una cuenta corriente por id_cliente, saldo_actual, fecha_ultimo_movimiento
+        public bool CrearCuentaCorriente(int idCliente, decimal saldoInicial = 0)
+        {
+            try
+            {
+                using (var contexto = new ArimaERPEntities())
+                {
+                    var existe = contexto.CUENTA_CORRIENTE.Any(c => c.id_cliente == idCliente);
+                    if (existe)
+                    {
+                        ErroresValidacion.Clear();
+                        ErroresValidacion.Add("Ya existe una cuenta corriente para este cliente.");
+                        return false;
+                    }
+
+                    var nuevaCuenta = new CUENTA_CORRIENTE
+                    {
+                        id_cliente = idCliente,
+                        saldo_actual = saldoInicial,
+                        fecha_ultimo_movimiento = DateTime.Today
+                    };
+
+                    contexto.CUENTA_CORRIENTE.Add(nuevaCuenta);
+                    contexto.SaveChanges();
+                    return true;
+                }
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                ErroresValidacion.Clear();
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var error in validationErrors.ValidationErrors)
+                    {
+                        string mensaje = $"Entidad: {validationErrors.Entry.Entity.GetType().Name}, Campo: {error.PropertyName}, Error: {error.ErrorMessage}";
+                        ErroresValidacion.Add(mensaje);
+                    }
+                }
+
+                if (ex.InnerException != null)
+                    ErroresValidacion.Add("Detalle interno: " + ex.InnerException.Message);
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error al crear cuenta corriente: " + ex.Message);
+
+                if (ex.InnerException != null)
+                    ErroresValidacion.Add("Inner: " + ex.InnerException.Message);
+
+                if (ex.InnerException?.InnerException != null)
+                    ErroresValidacion.Add("Inner deeper: " + ex.InnerException.InnerException.Message);
+
+                return false;
+            }
+        }
+        
     }
 }

@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassAuditoria.cs" />
     <Compile Include="ClassCliente.cs" />
     <Compile Include="ClassEmpleado.cs" />
     <Compile Include="ClassFamilia.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="ClassPedido.cs" />
     <Compile Include="ClassProducto.cs" />
     <Compile Include="ClassProveedor.cs" />
+    <Compile Include="ClassReporte.cs" />
     <Compile Include="ClassRol.cs" />
     <Compile Include="ClassTamano.cs" />
     <Compile Include="UsuarioDatos.cs" />

@@ -13,7 +13,7 @@ namespace Capa_Datos
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     using Capa_Entidades;
-
+    
     public partial class ArimaERPEntities : DbContext
     {
         public ArimaERPEntities()

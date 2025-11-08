@@ -22,6 +22,7 @@ namespace ArimaERP.Administrador
         ClassUsuarioLogica usuarioLog = new ClassUsuarioLogica();
         ClassEmpleadoLogica empleadoLogica = new ClassEmpleadoLogica();
         private string contrasenaOriginal;
+        ClassAuditoriaLogica auditoriaLogica = new ClassAuditoriaLogica();
 
         public FormRegistrarUsuario()
         {
@@ -317,6 +318,11 @@ namespace ArimaERP.Administrador
                 btnLimpiar.PerformClick();
             }
         }
+        private string ObtenerUsuarioActual()
+        {
+            // Aquí debes implementar la lógica para obtener el nombre del usuario actual
+            return UsuarioSesion.Nombre; // Ejemplo: retorna el nombre del usuario desde una clase estática de sesión
+        }
 
         private void btnCrear_Click(object sender, EventArgs e)
         {
@@ -358,9 +364,29 @@ namespace ArimaERP.Administrador
             textBoxUsuario.Text,
             textBoxContrasena.Text,
             comboBoxRol.SelectedValue.ToString()
-        );
+            );
+            var usuarioCreado = usuarioLog.ObtenerUsuarioPorNombre( textBoxUsuario.Text);
             if (exito)
             {
+                string usuarioActual = ObtenerUsuarioActual(); // quien está creando el nuevo usuario
+
+                string resumenUsuario = $"Usuario: {usuarioCreado.nombre}, Rol: {usuarioCreado.id_rol} ";                    
+                   
+
+                bool registrado = auditoriaLogica.Registrar(
+                    valorAnterior: "-",
+                    valorNuevo: resumenUsuario,
+                    nombreAccion: "Alta",
+                    nombreEntidad: "USUARIOS",
+                    usuario: usuarioActual
+                );
+
+                if (!registrado)
+                {
+                    MessageBox.Show("Usuario creado, pero no se pudo registrar auditoría:\n" +
+                        string.Join("\n", auditoriaLogica.ErroresValidacion),
+                        "Auditoría", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 MessageBox.Show("Usuario creado con éxito.", "Creación exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //limpiar campos
                 btnLimpiar.PerformClick();
@@ -630,6 +656,21 @@ namespace ArimaERP.Administrador
 
             if (usuarioModificado != null)
             {
+                string usuarioActual = ObtenerUsuarioActual(); // quien está realizando la modificación
+
+                string resumenAnterior =
+                    $"Usuario: {usuarioExistente.nombre}, Rol: {usuarioExistente.id_rol}, Estado: {(usuarioExistente.estado ? "Activo" : "Inactivo")}";
+
+                string resumenNuevo =
+                    $"Usuario: {usuarioModificado.nombre}, Rol: {usuarioModificado.id_rol}, Estado: {(usuarioModificado.estado ? "Activo" : "Inactivo")}";
+
+                bool registrado = auditoriaLogica.Registrar(
+                    valorAnterior: resumenAnterior,
+                    valorNuevo: resumenNuevo,
+                    nombreAccion: "Modificacion",
+                    nombreEntidad: "USUARIOS",
+                    usuario: usuarioActual
+                );
                 MessageBox.Show("Usuario modificado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 btnLimpiar.PerformClick();
             }

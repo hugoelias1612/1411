@@ -11,6 +11,77 @@ namespace Capa_Datos
     {
         public List<string> ErroresValidacion { get; private set; } = new List<string>();
         //obtener producto_presentacion por cod_producto
+        public int CrearProducto(PRODUCTO producto)
+        {
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    context.PRODUCTO.Add(producto);
+                    context.SaveChanges();
+                }
+                return producto.id_producto;
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                ErroresValidacion.Clear();
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var error in validationErrors.ValidationErrors)
+                    {
+                        string mensaje = $"Entidad: {validationErrors.Entry.Entity.GetType().Name}, Campo: {error.PropertyName}, Error: {error.ErrorMessage}";
+                        ErroresValidacion.Add(mensaje);
+                    }
+                }
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error general al guardar el producto: " + ex.Message);
+                if (ex.InnerException != null)
+                    ErroresValidacion.Add("Inner: " + ex.InnerException.Message);
+                if (ex.InnerException?.InnerException != null)
+                    ErroresValidacion.Add("Inner deeper: " + ex.InnerException.InnerException.Message);
+                return -1;
+            }
+        }
+        public producto_presentacion CrearProductoPresentacion(producto_presentacion nuevoProductoPresentacion)
+        {
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    context.producto_presentacion.Add(nuevoProductoPresentacion);
+                    context.SaveChanges();
+                }
+                return nuevoProductoPresentacion;
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                ErroresValidacion.Clear();
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var error in validationErrors.ValidationErrors)
+                    {
+                        string mensaje = $"Entidad: {validationErrors.Entry.Entity.GetType().Name}, Campo: {error.PropertyName}, Error: {error.ErrorMessage}";
+                        ErroresValidacion.Add(mensaje);
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error general al guardar producto_presentacion: " + ex.Message);
+                if (ex.InnerException != null)
+                    ErroresValidacion.Add("Inner: " + ex.InnerException.Message);
+                if (ex.InnerException?.InnerException != null)
+                    ErroresValidacion.Add("Inner deeper: " + ex.InnerException.InnerException.Message);
+                return null;
+            }
+        }
+
         public producto_presentacion ObtenerProductoPresentacionPorCodigo(int cod_producto)
         {
             try
@@ -27,6 +98,42 @@ namespace Capa_Datos
                 return null;
             }
         }
+        public stock CrearStock(stock nuevoStock)
+        {
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    context.stock.Add(nuevoStock);
+                    context.SaveChanges();
+                }
+                return nuevoStock;
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                ErroresValidacion.Clear();
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var error in validationErrors.ValidationErrors)
+                    {
+                        string mensaje = $"Entidad: {validationErrors.Entry.Entity.GetType().Name}, Campo: {error.PropertyName}, Error: {error.ErrorMessage}";
+                        ErroresValidacion.Add(mensaje);
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error general al guardar el stock: " + ex.Message);
+                if (ex.InnerException != null)
+                    ErroresValidacion.Add("Inner: " + ex.InnerException.Message);
+                if (ex.InnerException?.InnerException != null)
+                    ErroresValidacion.Add("Inner deeper: " + ex.InnerException.InnerException.Message);
+                return null;
+            }
+        }
+
         //obtener producto por id_producto
         public PRODUCTO ObtenerProductoPorId(int id_producto)
         {

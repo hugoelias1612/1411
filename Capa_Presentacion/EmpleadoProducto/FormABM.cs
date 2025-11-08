@@ -1,37 +1,56 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using Capa_Logica;
+using Capa_Entidades;
 
 namespace ArimaERP.EmpleadoProducto
 {
     public partial class FormABM : Form
     {
         private ErrorProvider errorProvider;
-
+        ClassMarcaLogica marcaLogica = new ClassMarcaLogica();
+        ClassFamiliaLogica familiaLogica = new ClassFamiliaLogica();
+        ClassProveedorLogica proveedorLogica = new ClassProveedorLogica();
+        ClassProductoLogica productoLogica = new ClassProductoLogica();
         public FormABM()
         {
-            InitializeComponent();
-
-            // Inicialización del ErrorProvider
-            errorProvider = new ErrorProvider
-            {
-                ContainerControl = this,
-                BlinkStyle = ErrorBlinkStyle.NeverBlink
-            };
+            InitializeComponent();            
         }
 
         private void FormABM_Load(object sender, EventArgs e)
         {
-            // Inicializar ComboBoxes
-            cbxFamilia.Items.Insert(0, "Seleccione familia");
-            cbxFamilia.SelectedIndex = 0;
+            //cargar comboBoxMarca de base de datos
+            var marcas = marcaLogica.ObtenerTodasLasMarcas();
+            cbxMarca.DataSource = marcas;
+            //cargar comboBoxFamilia de base de datos
+            var familias = familiaLogica.ObtenerTodasLasFamilias();
+            cbxFamilia.DataSource = familias;
+            cbxFamilia.DisplayMember = "descripcion";
+            cbxFamilia.ValueMember = "id_familia";
+            cbxFamilia.SelectedIndex = -1; // No seleccionar nada al inicio
+            cbxMarca.DisplayMember = "nombre";
+            cbxMarca.ValueMember = "id_marca";
+            cbxMarca.SelectedIndex = -1; // No seleccionar nada al inicio
 
-            cbxProveedor.Items.Insert(0, "Seleccione proveedor");
-            cbxProveedor.SelectedIndex = 0;
+            var familiasBaja = familiaLogica.ObtenerTodasLasFamilias();
+            cbxFamiliaBaja.DataSource = familiasBaja;
+            cbxFamiliaBaja.DisplayMember = "descripcion";
+            cbxFamiliaBaja.ValueMember = "id_familia";
+            cbxFamiliaBaja.SelectedIndex = -1; // No seleccionar nada al inicio
 
-            cbxMarca.Items.Insert(0, "Seleccione marca");
-            cbxMarca.SelectedIndex = 0;
+            var marcasBaja = marcaLogica.ObtenerTodasLasMarcas();
+            cbxMarcaBaja.DataSource = marcasBaja;
+            cbxMarcaBaja.DisplayMember = "nombre";
+            cbxMarcaBaja.ValueMember = "id_marca";
+            cbxMarcaBaja.SelectedIndex = -1; // No seleccionar nada al inicio
 
+            //Cargar todos los proveedores
+            var presentaciones = productoLogica.ObtenerListaPresentaciones();
+            cbxPresentacion.DataSource = presentaciones;
+            cbxPresentacion.DisplayMember = "descripcion";
+            cbxPresentacion.ValueMember = "ID_presentacion";
+            cbxPresentacion.SelectedIndex = -1; // No seleccionar nada al inicio
             // Inicializar NumericUpDown
             nudUPB.Value = 0;
             nudBultosIniciales.Value = 0;
@@ -65,24 +84,7 @@ namespace ArimaERP.EmpleadoProducto
             }
         }
 
-        private void txtNombre_Validating(object sender, CancelEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtNombre.Text))
-            {
-                errorProvider1.SetError(txtNombre, "El nombre es obligatorio.");
-                e.Cancel = true;
-            }
-            else if (txtNombre.Text.Length < 2)
-            {
-                errorProvider1.SetError(txtNombre, "Debe tener al menos 2 caracteres.");
-                e.Cancel = true;
-            }
-            else
-            {
-                errorProvider1.SetError(txtNombre, "");
-            }
-        }
-
+       
         private void txtPrecioUnit_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != ',')
@@ -99,20 +101,7 @@ namespace ArimaERP.EmpleadoProducto
             {
                 errorProvider1.SetError(txtPrecioUnit, "");
             }
-        }
-
-        private void txtPrecioUnit_Validating(object sender, CancelEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtPrecioUnit.Text))
-            {
-                errorProvider1.SetError(txtPrecioUnit, "El precio unitario es obligatorio.");
-                e.Cancel = true;
-            }
-            else
-            {
-                errorProvider1.SetError(txtPrecioUnit, "");
-            }
-        }
+        }       
 
         private void numericUpDownUnidadesPorBulto_Validating(object sender, CancelEventArgs e)
         {
@@ -130,27 +119,93 @@ namespace ArimaERP.EmpleadoProducto
         private void btnCrearProducto_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtNombre.Text) ||
-                cbxFamilia.SelectedIndex == 0 ||
-                cbxProveedor.SelectedIndex == 0 ||
-                cbxMarca.SelectedIndex == 0 ||
+                string.IsNullOrWhiteSpace(textBoxCodigo.Text) ||
                 string.IsNullOrWhiteSpace(txtPrecioUnit.Text) ||
-                nudUPB.Value <= 0)
+                cbxFamilia.SelectedIndex == -1 ||
+                cbxPresentacion.SelectedIndex == -1 ||
+                cbxMarca.SelectedIndex == -1 ||
+                string.IsNullOrWhiteSpace(txtPrecioUnit.Text) ||
+                nudUPB.Value <= 0 ||
+                nudBultosIniciales.Value < 0 ||
+                nudUnidadesIniciales.Value < 0)
             {
-                MessageBox.Show("Por favor, complete todos los campos obligatorios correctamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Por favor, complete todos los campos y/o verifique cantidades iniciales.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            // Pedir confirmación para crear el producto
+            var resultado = MessageBox.Show(
+                "¿Está seguro que desea crear el producto con los datos ingresados?",
+                "Confirmar alta de producto",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
 
-            MessageBox.Show("Producto validado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Reemplaza el bloque dentro de btnCrearProducto_Click
+            if (resultado == DialogResult.Yes)
+            {
+                int cod_producto = Convert.ToInt32(textBoxCodigo.Text);
+                //Verificar si ya existe el producto
+                var productoExistente = productoLogica.ObtenerProductoPresentacionPorCodigo(cod_producto);
+                if(productoExistente!= null)
+                {
+                    MessageBox.Show("Ya existe un producto con ese código y presentación.", "Producto existente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                string nombre = txtNombre.Text.Trim();
+                int id_familia = Convert.ToInt32(cbxFamilia.SelectedValue);
+                int id_marca = Convert.ToInt32(cbxMarca.SelectedValue);
+                int idProducto = productoLogica.CrearProducto(nombre, id_familia, id_marca);
+
+
+                
+                decimal precioLista = Convert.ToDecimal(txtPrecioUnit.Text);
+                int unidades_bulto = Convert.ToInt32(nudUPB.Value);
+                int bultosIniciales = Convert.ToInt32(nudBultosIniciales.Value);
+                int unidadesIniciales = Convert.ToInt32(nudUnidadesIniciales.Value);
+                int ID_presentacion = Convert.ToInt32(cbxPresentacion.SelectedValue);
+                bool activo = true;
+                 if (idProducto == -1)
+                {
+                    MessageBox.Show("Error al crear el producto:\n" + string.Join("\n", productoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+               
+                var producto_presentacion = productoLogica.CrearProductoPresentacion(idProducto, ID_presentacion, cod_producto, precioLista, unidades_bulto, activo);
+                                                 
+
+                if (producto_presentacion == null)
+                {
+                    MessageBox.Show("Error al crear el producto con presentacion:\n" + string.Join("\n", productoLogica.ErroresValidacion), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    btnLimpiarCampos_Click(sender, e);
+                }
+                //Crear stock si todavia no existe para este producto_presentacion
+                var stockConsulta = productoLogica.ObtenerStockPorProductoYPresentacion(producto_presentacion.id_producto, producto_presentacion.ID_presentacion);
+                if(stockConsulta == null)
+                {
+                    int stock_actual = unidadesIniciales + bultosIniciales * producto_presentacion.unidades_bulto;
+                    var stockCreado = productoLogica.CrearStock(stock_actual, 20, producto_presentacion.id_producto, producto_presentacion.ID_presentacion);
+                }
+            }          
+
+                
+            
         }
 
         private void btnLimpiarCampos_Click(object sender, EventArgs e)
         {
             txtNombre.Clear();
             txtPrecioUnit.Clear();
+            textBoxCodigo.Clear();
 
-            cbxFamilia.SelectedIndex = 0;
-            cbxProveedor.SelectedIndex = 0;
-            cbxMarca.SelectedIndex = 0;
+            cbxFamilia.SelectedIndex = -1;
+            cbxPresentacion.SelectedIndex = -1;
+            cbxMarca.SelectedIndex = -1;
 
             nudUPB.Value = 0;
             nudBultosIniciales.Value = 0;
@@ -179,40 +234,25 @@ namespace ArimaERP.EmpleadoProducto
             PBaja.Visible = false;
             PModificacion.Visible = true;
         }
-
-        private void txtBuscarDni_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Lógica para búsqueda por DNI
-        }
-
-        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Lógica adicional si se necesita
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // Acción al hacer clic en una celda
-        }
-
         private void textBoxCodigo_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+        {            
+            //permitir solo numeros y no mas de 10 caracteres
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;
-                MessageBox.Show("Solo se permiten números.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errorProvider1.SetError(textBoxCodigo, "Solo se permiten números.");
             }
-
-            if (textBoxCodigo.Text.Length >= 10 && !char.IsControl(e.KeyChar))
+            else if(textBoxCodigo.Text.Length >= 8 && !char.IsControl(e.KeyChar))
             {
                 e.Handled = true;
-                errorProvider1.SetError(textBoxCodigo, "Máximo 10 caracteres.");
+                errorProvider1.SetError(textBoxCodigo, "No se permiten más de 10 caracteres.");
+            }
+            else
+            {
+                errorProvider1.SetError(textBoxCodigo, "");
             }
         }
 
-        private void textBoxCodigo_KeyPress_1(object sender, KeyPressEventArgs e)
-        {
-
-        }
+      
     }
 }

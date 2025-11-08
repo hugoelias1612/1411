@@ -147,21 +147,45 @@ namespace Capa_Logica
             return pedido.ObtenerPedidosPorIdCliente(id_cliente);
 
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorIdCliente(int id_cliente)
+        {
+            return pedido.ObtenerPedidosEntregadosPorIdCliente(id_cliente);
+        }
         //Obtener todos los pedidos
         public List<PEDIDO> ObtenerTodosLosPedidos()
         {
             return pedido.ObtenerTodosLosPedidos();
 
         }
+        public List<PEDIDO> ObtenerPedidosEntregados()
+        {
+            return pedido.ObtenerPedidosEntregados();
+        }
         //Obtener pedido por numero de factura
         public PEDIDO ObtenerPedidoPorNumeroFactura(int numero_factura)
         {
             return pedido.ObtenerPedidoPorNumeroFactura(numero_factura);
         }
+        public PEDIDO ObtenerPedidoEntregadoPorNumeroFactura(int numero_factura)
+        {
+            return pedido.ObtenerPedidoEntregadoPorNumeroFactura(numero_factura);
+        }
         //Obtener pedidos por zona seleccionada en comboBox
         public List<PEDIDO> ObtenerPedidosPorZona(int zona)
         {
             return pedido.ObtenerPedidosPorZona(zona);
+        }
+        public List<PEDIDO> ObtenerPedidosPendientesPorZona(int zona)
+        {
+            return pedido.ObtenerPedidosPendientesPorZona(zona);
+        }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorZona(int zona)
+        {
+            return pedido.ObtenerPedidosEntregadosPorZona(zona);
+        }
+        public List<PEDIDO> ObtenerPedidosCanceladosPorZona(int zona)
+        {
+            return pedido.ObtenerPedidosCanceladosPorZona(zona);
         }
         //Obtener pedidos por estado seleccionado en comboBox
         public List<PEDIDO> ObtenerPedidosPorEstado(int estado)
@@ -173,23 +197,39 @@ namespace Capa_Logica
         {
             return pedido.ObtenerPedidosPorFechaEntrega(fecha_entrega);
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorFechaEntrega(DateTime fecha_entrega)
+        {
+            return pedido.ObtenerPedidosEntregadosPorFechaEntrega(fecha_entrega);
+        }
         //Obtener pedidos por fecha de creacion
         public List<PEDIDO> ObtenerPedidosPorFechaCreacion(DateTime fecha_creacion)
         {
             return pedido.ObtenerPedidosPorFechaCreacion(fecha_creacion);
+        }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorFechaCreacion(DateTime fecha_creacion)
+        {
+            return pedido.ObtenerPedidosEntregadosPorFechaCreacion(fecha_creacion);
         }
         //obtener pedidos de un monto menor o igual al ingresado
         public List<PEDIDO> ObtenerPedidosPorMontoMaximo(decimal monto_maximo)
         {
             return pedido.ObtenerPedidosPorMontoMaximo(monto_maximo);
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorMontoMaximo(decimal montoMaximo)
+        {
+            return pedido.ObtenerPedidosEntregadosPorMontoMaximo(montoMaximo);
+        }
         //obtener pedidos por vendedor
         public List<PEDIDO> ObtenerPedidosPorVendedor(string vendedor)
         {
             return pedido.ObtenerPedidosPorVendedor(vendedor);
         }
+        public List<PEDIDO> ObtenerPedidosEntregadosPorVendedor(string vendedor)
+        {
+            return pedido.ObtenerPedidosEntregadosPorVendedor(vendedor);
+        }
         //Actualizar pedido
-        public PEDIDO ModificarPedido(int id_pedido, DateTime fecha_creacion, DateTime fecha_entrega, int id_cliente, int id_estado, decimal total, int numero_factura, string vendedor)
+        public PEDIDO ModificarPedido(int id_pedido, DateTime fecha_creacion, DateTime fecha_entrega, int id_cliente, int id_estado, decimal total, int? numero_factura, string vendedor)
         {
             try
             {
@@ -244,6 +284,19 @@ namespace Capa_Logica
         public ESTADO_PEDIDO ObtenerEstadoPorId(int id_estado)
         {
             return pedido.ObtenerEstadoPorId(id_estado);
+        }
+        public bool ActualizarStock(int id_producto, int ID_presentacion, int cantidad)
+        {
+            try
+            {
+                return pedido.ActualizarStock(id_producto, ID_presentacion, cantidad);
+            }
+            catch (Exception ex)
+            {
+                pedido.ErroresValidacion.Clear();
+                pedido.ErroresValidacion.Add("Error al actualizar el stock del producto" + ex.Message);
+                return false;
+            }
         }
     }
 }
