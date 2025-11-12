@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -191,6 +192,16 @@ namespace Capa_Datos
                 return context.CLIENTE.Where(c => c.id_tamano== tamanio).ToList();
             }
         }
+        public  List<CLIENTE> ObtenerClientesPorTamanioYZona(int tamanio, int idZona)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.CLIENTE
+                    .Where(c => c.id_tamano == tamanio && c.id_zona == idZona)
+                    .ToList();
+            }
+        }
+
         //obtener solo clientes confiables
         public static List<CLIENTE> ObtenerClientesConfiables()
             {
@@ -288,6 +299,16 @@ namespace Capa_Datos
                     .ToList();
             }
         }
+
+        public CLIENTE ObtenerClientePorEmail(string email)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                return context.CLIENTE.FirstOrDefault(c => c.email == email);
+            }
+        }
+
+
         //Crear una cuenta corriente por id_cliente, saldo_actual, fecha_ultimo_movimiento
         public bool CrearCuentaCorriente(int idCliente, decimal saldoInicial = 0)
         {
@@ -346,6 +367,34 @@ namespace Capa_Datos
                 return false;
             }
         }
-        
+        public List<CLIENTE> BuscarClientesPorTexto(string texto)
+        {
+            using (var context = new ArimaERPEntities())
+            {
+                string filtro = texto.ToLower();
+
+                return context.CLIENTE
+                    .Where(c =>
+                        (c.nombre != null && c.nombre.ToLower().Contains(filtro)) ||
+                        (c.apellido != null && c.apellido.ToLower().Contains(filtro)) ||
+                        (c.dni.ToString().Contains(filtro)) ||
+                        (c.email != null && c.email.ToLower().Contains(filtro)) ||
+                        (c.razon_social != null && c.razon_social.ToLower().Contains(filtro)) ||
+                        (c.cuil_cuit.ToString().Contains(filtro)) ||
+                        (c.fecha_alta.ToString().Contains(filtro)) ||
+                        ((c.estado ? "activo" : "inactivo").Contains(filtro)) ||
+                        ((c.confiable ? "si" : "no").Contains(filtro)) ||
+                        (c.condicion_frenteIVA != null && c.condicion_frenteIVA.ToLower().Contains(filtro)) ||
+                        (c.calle != null && c.calle.ToLower().Contains(filtro)) ||
+                        (c.numero.ToString().Contains(filtro)) ||
+                        (c.ciudad != null && c.ciudad.ToLower().Contains(filtro)) ||
+                        (c.provincia != null && c.provincia.ToLower().Contains(filtro)) ||
+                        (c.cod_postal.ToString().Contains(filtro))
+                    )
+                    .ToList();
+            }
+        }
+
+
     }
 }

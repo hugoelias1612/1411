@@ -146,6 +146,7 @@
             this.CMostrar.TabIndex = 4;
             this.CMostrar.Text = "Mostrar";
             this.CMostrar.UseVisualStyleBackColor = true;
+            this.CMostrar.CheckedChanged += new System.EventHandler(this.CMostrar_CheckedChanged);
             // 
             // TContrasena
             // 

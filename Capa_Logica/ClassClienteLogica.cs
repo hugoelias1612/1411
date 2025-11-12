@@ -213,6 +213,27 @@ namespace Capa_Logica
         {
             return client.CrearCuentaCorriente(idCliente, saldoInicial);
         }
+        public List<CLIENTE> ObtenerClientesPorTamanioYZona(int tamanio, int idZona)
+        {
+            return client.ObtenerClientesPorTamanioYZona(tamanio, idZona);
+        }
+        public CLIENTE ObtenerClientePorEmail(string email)
+        {
+            return client.ObtenerClientePorEmail(email);
+        }
+        public List<CLIENTE> BuscarClientesPorTexto(string texto)
+        {
+            try
+            {
+                return client.BuscarClientesPorTexto(texto);
+            }
+            catch (Exception ex)
+            {
+                client.ErroresValidacion.Clear();
+                client.ErroresValidacion.Add("Error al buscar clientes: " + ex.Message);
+                return new List<CLIENTE>();
+            }
+        }
     }
 }
 

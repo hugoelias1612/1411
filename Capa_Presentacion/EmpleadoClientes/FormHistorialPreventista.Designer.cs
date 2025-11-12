@@ -231,7 +231,6 @@
             this.txtBuscarPreventista.Name = "txtBuscarPreventista";
             this.txtBuscarPreventista.Size = new System.Drawing.Size(274, 31);
             this.txtBuscarPreventista.TabIndex = 1;
-            this.txtBuscarPreventista.TextChanged += new System.EventHandler(this.txtBuscarPreventista_TextChanged);
             // 
             // btnBuscarPreventista
             // 

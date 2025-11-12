@@ -65,6 +65,10 @@ namespace ArimaERP
             TCorreo.Focus();
         }
 
-        
+        private void CMostrar_CheckedChanged(object sender, EventArgs e)
+        {
+            TContrasena.UseSystemPasswordChar = !CMostrar.Checked;
+        }
     }
-}
+    }
+

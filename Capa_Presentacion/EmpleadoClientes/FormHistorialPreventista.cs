@@ -26,17 +26,7 @@ namespace ArimaERP.EmpleadoClientes
         public FormHistorialPreventista()
         {
             InitializeComponent();
-        }
-
-        private void registrarPagoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtBuscarPreventista_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        }      
 
         private void btnBuscarPreventista_Click(object sender, EventArgs e)
         {
@@ -155,7 +145,7 @@ namespace ArimaERP.EmpleadoClientes
             var clientes = clienteLogica.ClientesNoConfiablesPorZona(id_zona);
             if (clientes == null || clientes.Count == 0)
             {
-                MessageBox.Show("No hay clientes registrados en esta zona.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No hay clientes no confiables registrados en esta zona.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -330,7 +320,7 @@ namespace ArimaERP.EmpleadoClientes
             var clientes = clienteLogica.ClientesConfiablesPorZona(id_zona);
             if (clientes == null || clientes.Count == 0)
             {
-                MessageBox.Show("No hay clientes registrados en la zona del preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No hay clientes confiables registrados en la zona del preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -373,7 +363,7 @@ namespace ArimaERP.EmpleadoClientes
 
             // Obtener clientes pequeños de la zona
 
-            var clientes = clienteLogica.ObtenerClientesPorTamanio(1);
+            var clientes = clienteLogica.ObtenerClientesPorTamanioYZona(1, id_zona);
             if (clientes == null || clientes.Count == 0)
             {
                 MessageBox.Show("No hay clientes registrados en la zona asignada al preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -420,14 +410,14 @@ namespace ArimaERP.EmpleadoClientes
 
             // Obtener clientes pequeños de la zona
 
-            var clientes = clienteLogica.ObtenerClientesPorTamanio(2);
+            var clientes = clienteLogica.ObtenerClientesPorTamanioYZona(2,id_zona);
             if (clientes == null || clientes.Count == 0)
             {
                 MessageBox.Show("No hay clientes registrados en la zona del preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // Cargar clientes en el DataGridView
+            // Cargar medianos en el DataGridView
             foreach (var cliente in clientes)
             {
                 string nombreCompleto = $"{cliente.nombre} {cliente.apellido}";
@@ -465,7 +455,7 @@ namespace ArimaERP.EmpleadoClientes
 
             // Obtener clientes grandes de la zona
 
-            var clientes = clienteLogica.ObtenerClientesPorTamanio(3);
+            var clientes = clienteLogica.ObtenerClientesPorTamanioYZona(3, id_zona);
             if (clientes == null || clientes.Count == 0)
             {
                 MessageBox.Show("No hay clientes registrados en la zona del preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -508,7 +498,7 @@ namespace ArimaERP.EmpleadoClientes
             var pedidos = pedidoLogica.ObtenerPedidosPendientesPorZona(id_zona);
             if (pedidos == null || pedidos.Count == 0)
             {
-                MessageBox.Show("No se encontraron pedidos para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No se encontraron pedidos pendientes para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -612,7 +602,7 @@ namespace ArimaERP.EmpleadoClientes
             var pedidos = pedidoLogica.ObtenerPedidosCanceladosPorZona(id_zona);
             if (pedidos == null || pedidos.Count == 0)
             {
-                MessageBox.Show("No se encontraron pedidos para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No se encontraron pedidos cancelados para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -724,7 +714,7 @@ namespace ArimaERP.EmpleadoClientes
             var pedidosConSaldo = pedidoLogica.ObtenerPedidosSaldadosPorVendedor(nombreUsuario);
             if (pedidosConSaldo == null || pedidosConSaldo.Count == 0)
             {
-                MessageBox.Show("No se encontraron pedidos con saldo pendiente para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No se encontraron pedidos con saldados para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -784,7 +774,7 @@ namespace ArimaERP.EmpleadoClientes
             var pedidosConSaldo = pedidoLogica.ObtenerPedidosSaldadosUltimoMesPorVendedor(nombreUsuario);
             if (pedidosConSaldo == null || pedidosConSaldo.Count == 0)
             {
-                MessageBox.Show("No se encontraron pedidos con saldo pendiente para este preventista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No se encontraron ventas del preventista en este mes.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

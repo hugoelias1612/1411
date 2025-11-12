@@ -21,31 +21,16 @@ namespace ArimaERP.EmpleadoClientes
         private ClassUsuarioLogica usuarios = new ClassUsuarioLogica();
         private ClassEmpleadoLogica empleado = new ClassEmpleadoLogica();
         private ClassZonaLogica zona = new ClassZonaLogica();
+        private ClassPedidoLogica pedidoLogica = new ClassPedidoLogica();
+        private ClassPagoLogica pagoLogica = new ClassPagoLogica();
+        private ClassEmpleadoLogica empleadoLogica = new ClassEmpleadoLogica();
         public FormClienteHistorial()
         {
             InitializeComponent();
-        }              
-
-        private void btnListarPagos_Click(object sender, EventArgs e)
-        {
-            //Visualizar dataGridViewDetallePagos
-            
         }
 
-        private void btnListarPedidosPendientes_Click(object sender, EventArgs e)
-        {
-           
-        }
 
-        private void btnPedidosEntregados_Click(object sender, EventArgs e)
-        {
-            //visualizar dataGridViewVerPedidos
-            
-        }
 
-        private void btnListarSaldosPendientes_Click(object sender, EventArgs e)
-        {
-        }
 
 
 
@@ -94,20 +79,22 @@ namespace ArimaERP.EmpleadoClientes
 
         }
         //recargar dgvClientes
-        private void RecargardgvClientes()
+        private void CargarClientesEnGrid(List<CLIENTE> listaClientes)
         {
             try
             {
                 dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
+
                 var zonas = clienteLogica.ObtenerZonas();
                 var tamanos = clienteLogica.ObtenerTamanos();
+
                 foreach (var cliente in listaClientes)
                 {
                     string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
                     string confiableTexto = cliente.confiable ? "Si" : "No";
                     string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
                     string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
+
                     dgvClientes.Rows.Add(
                         cliente.id_cliente,
                         cliente.dni,
@@ -128,22 +115,17 @@ namespace ArimaERP.EmpleadoClientes
                         cliente.cod_postal,
                         nombreTamano,
                         nombreZona,
-                         cliente.id_tamano, cliente.id_zona
+                        cliente.id_tamano,
+                        cliente.id_zona
                     );
                 }
-                //limpiar txtBuscarDni, txtNombreApellido, txtBuscarEmail, textBoxBUSCARGENERAL
-                txtBuscarDni.Clear();
-                txtNombreApellido.Clear();
-                txtBuscarEmail.Clear();
-                textBoxBUSCARGENERAL.Clear();
-                comboBoxPreventista.SelectedIndex = -1;
-                comboBoxTipo.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al recargar clientes: " + ex.Message);
+                MessageBox.Show("Error al cargar clientes: " + ex.Message);
             }
         }
+
 
         private void FormClienteHistorial_Load(object sender, EventArgs e)
         {
@@ -174,6 +156,14 @@ namespace ArimaERP.EmpleadoClientes
             dgvClientes.Columns.Add("zona", "Zona");
             dgvClientes.Columns.Add("id_tamano", "ID Tamaño");
             dgvClientes.Columns.Add("id_zona", "ID Zona");
+            DataGridViewButtonColumn btnVerPedidos = new DataGridViewButtonColumn();
+            btnVerPedidos.Name = "btnVerPedidos";
+            btnVerPedidos.HeaderText = "Acciones";
+            btnVerPedidos.Text = "Ver Pedidos";
+            btnVerPedidos.UseColumnTextForButtonValue = true;
+            btnVerPedidos.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            dgvClientes.Columns.Add(btnVerPedidos);
+
             //permitir solo lectura del dgvClientes
             dgvClientes.ReadOnly = true;
             //seleccionar toda la fila al hacer click en una celda
@@ -184,8 +174,9 @@ namespace ArimaERP.EmpleadoClientes
             dgvClientes.Columns["id_tamano"].Visible = false;
             dgvClientes.Columns["id_zona"].Visible = false;
             //cargar lista de clientes en dgvClientes
+            List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
 
-            RecargardgvClientes();
+            CargarClientesEnGrid(listaClientes);
             //cargar preventistas en comboBoxPreventista
             // Obtener usuarios con rol Preventista
             var empleadosPreventistas = empleado.ObtenerEmpleadosPorRol(5);
@@ -215,6 +206,15 @@ namespace ArimaERP.EmpleadoClientes
             dataGridViewVerPedidos.Columns.Add("total", "Total");
             dataGridViewVerPedidos.Columns.Add("numero_factura", "Número Factura");
             dataGridViewVerPedidos.Columns.Add("vendedor", "Vendedor");
+            
+            DataGridViewButtonColumn btnVerPagos = new DataGridViewButtonColumn();
+            btnVerPagos.Name = "btnVerPagos";
+            btnVerPagos.HeaderText = "Acciones";
+            btnVerPagos.Text = "Ver Pagos";
+            btnVerPagos.UseColumnTextForButtonValue = true;
+            btnVerPagos.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewVerPedidos.Columns.Add(btnVerPagos);
+
             //ocultar columna id_estado
             dataGridViewVerPedidos.Columns["id_estado"].Visible = false;
             //ocultar columna id_cliente
@@ -235,68 +235,55 @@ namespace ArimaERP.EmpleadoClientes
             //permitir solo lectura del dataGridViewDetallePagos
             dataGridViewDetallePagos.ReadOnly = true;
             cargandoFormulario = false;
-        }     
-       
+            dataGridViewCuentaCorriente.Columns.Add("id_cliente", "ID Cliente");
+            dataGridViewCuentaCorriente.Columns.Add("cliente", "Cliente");
+            dataGridViewCuentaCorriente.Columns.Add("saldo_actual", "Saldo Actual");
+            dataGridViewCuentaCorriente.Columns.Add("fecha_ultimo_movimiento", "Último Movimiento");
+
+            dataGridViewCuentaCorriente.ReadOnly = true;
+            dataGridViewCuentaCorriente.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewCuentaCorriente.MultiSelect = false;
+            dataGridViewCuentaCorriente.Visible = false;
+
+        }
+
         private void txtBuscarDni_KeyDown(object sender, KeyEventArgs e)
         {
 
             if (e.KeyCode == Keys.Enter)
             {
-                //buscar cliente por dni
                 dgvClientes.Visible = true;
                 dataGridViewDetallePagos.Visible = false;
                 dataGridViewVerPedidos.Visible = false;
-                //ocultar errorProvider
+
                 errorProvider1.SetError(txtBuscarDni, "");
 
-                if (!string.IsNullOrEmpty(txtBuscarDni.Text))
+                string dniTexto = txtBuscarDni.Text.Trim();
+
+                if (string.IsNullOrEmpty(dniTexto))
                 {
-                    if (!long.TryParse(txtBuscarDni.Text, out _))
-                    {
-                        MessageBox.Show("Por favor, ingrese solo valores numéricos para el DNI.", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        txtBuscarDni.Clear();
-                        return;
-                    }
+                    MessageBox.Show("Ingrese un DNI para buscar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
-                string filtro = txtBuscarDni.Text.ToLower();
-                //buscar por dni en tabla CLIENTE de base de datos
-                // Limpiar las filas actuales del DataGridView
-                dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
-                var clientesFiltrados = listaClientes.Where(cliente =>
-                    cliente.dni.ToString().ToLower().Contains(filtro)
-                ).ToList();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in clientesFiltrados)
+
+                if (!int.TryParse(dniTexto, out int dni))
                 {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                         cliente.id_tamano, cliente.id_zona
-                    );
+                    MessageBox.Show("Por favor, ingrese solo valores numéricos para el DNI.", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtBuscarDni.Clear();
+                    return;
                 }
+
+                // Buscar cliente por DNI usando capa lógica
+                var cliente = clienteLogica.ObtenerClientePorDni(dni.ToString());
+
+                if (cliente == null)
+                {
+                    MessageBox.Show("No se encontró ningún cliente con ese DNI.", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Cargar cliente en el DataGridView usando función reutilizable
+                CargarClientesEnGrid(new List<CLIENTE> { cliente });
             }
         }
 
@@ -316,198 +303,121 @@ namespace ArimaERP.EmpleadoClientes
 
         private void txtNombreApellido_KeyDown(object sender, KeyEventArgs e)
         {
-            //verificar si hay al menos 3 caracteres y si se presiona enter
             if (e.KeyCode == Keys.Enter)
             {
-                //buscar cliente por nombre y apellido
                 dgvClientes.Visible = true;
                 dataGridViewDetallePagos.Visible = false;
                 dataGridViewVerPedidos.Visible = false;
-                //ocultar errorProvider
+
                 errorProvider1.SetError(txtNombreApellido, "");
 
-                string filtro = txtNombreApellido.Text.ToLower();
-                //buscar por nombre o apellido en tabla CLIENTE de base de datos
-                // Limpiar las filas actuales del DataGridView
-                dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
-                var clientesFiltrados = listaClientes.Where(cliente =>
-                    (cliente.nombre != null && cliente.nombre.ToLower().Contains(filtro)) ||
-                    (cliente.apellido != null && cliente.apellido.ToLower().Contains(filtro))
-                ).ToList();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in clientesFiltrados)
+                string textoBusqueda = txtNombreApellido.Text.Trim();
+
+                if (textoBusqueda.Length < 3)
                 {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                            cliente.id_tamano, cliente.id_zona
-                    );
+                    MessageBox.Show("Ingrese al menos 3 caracteres para buscar por nombre o apellido.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                int? idCliente = pedidoLogica.ObtenerIdClientePorTexto(textoBusqueda);
+
+                if (idCliente == null)
+                {
+                    MessageBox.Show("No se encontró ningún cliente con ese nombre o apellido.", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                var cliente = clienteLogica.ObtenerClientePorId(idCliente.Value);
+
+                if (cliente != null)
+                {
+                    CargarClientesEnGrid(new List<CLIENTE> { cliente });
+                }
+                else
+                {
+                    MessageBox.Show("No se pudo recuperar la información del cliente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void txtBuscarEmail_KeyDown(object sender, KeyEventArgs e)
         {
-            //verificar si tiene formato de email y si se presiona enter
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            dgvClientes.Visible = true;
+            dataGridViewDetallePagos.Visible = false;
+            dataGridViewVerPedidos.Visible = false;
+            errorProvider1.SetError(txtBuscarEmail, "");
+
+            string email = txtBuscarEmail.Text.Trim();
+
+            if (string.IsNullOrEmpty(email))
             {
-                //buscar cliente por email
-                dgvClientes.Visible = true;
-                dataGridViewDetallePagos.Visible = false;
-                dataGridViewVerPedidos.Visible = false;
-                //ocultar errorProvider
-                errorProvider1.SetError(txtBuscarEmail, "");
-                if (!string.IsNullOrEmpty(txtBuscarEmail.Text))
-                {
-                    try
-                    {
-                        var addr = new System.Net.Mail.MailAddress(txtBuscarEmail.Text);
-                        if (addr.Address != txtBuscarEmail.Text)
-                        {
-                            throw new Exception();
-                        }
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Por favor, ingrese un formato de email válido.", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        txtBuscarEmail.Clear();
-                        return;
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("El campo de email no puede estar vacío", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                string filtro = txtBuscarEmail.Text.ToLower();
-                //buscar por email en tabla CLIENTE de base de datos
-                // Limpiar las filas actuales del DataGridView
-                dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
-                var clientesFiltrados = listaClientes.Where(cliente =>
-                    cliente.email != null && cliente.email.ToLower().Contains(filtro)
-                ).ToList();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in clientesFiltrados)
-                {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                        cliente.id_tamano,
-                        cliente.id_zona
-                        );
-                }
+                MessageBox.Show("El campo de email no puede estar vacío", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                if (addr.Address != email)
+                    throw new Exception();
+            }
+            catch
+            {
+                MessageBox.Show("Por favor, ingrese un formato de email válido.", "Entrada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtBuscarEmail.Clear();
+                return;
+            }
+
+            var cliente = clienteLogica.ObtenerClientePorEmail(email);
+
+            dgvClientes.Rows.Clear();
+
+            if (cliente != null)
+            {
+                CargarClientesEnGrid(new List<CLIENTE> { cliente });
+            }
+            else
+            {
+                MessageBox.Show("No se encontró ningún cliente con ese email.", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
         }
 
         private void textBoxBUSCARGENERAL_TextChanged(object sender, EventArgs e)
         {
-            //busqueda general en todas las columnas de la tabla cliente
-            var zonas = clienteLogica.ObtenerZonas();
-            var tamanos = clienteLogica.ObtenerTamanos();
+            string filtro = textBoxBUSCARGENERAL.Text.Trim().ToLower();
 
-            List<CLIENTE> listaClientes = clienteLogica.ObtenerClientes();
-            string filtro = textBoxBUSCARGENERAL.Text.ToLower();
             if (string.IsNullOrEmpty(filtro))
             {
+                dgvClientes.Rows.Clear();
+                dgvClientes.Visible = false;
                 return;
             }
-            var clientesFiltrados = listaClientes.Where(cliente =>
-                (cliente.nombre != null && cliente.nombre.ToLower().Contains(filtro)) ||
-                (cliente.apellido != null && cliente.apellido.ToLower().Contains(filtro)) ||
-                (cliente.dni.ToString().ToLower().Contains(filtro)) ||
-                (cliente.email != null && cliente.email.ToLower().Contains(filtro)) ||
-                (cliente.razon_social != null && cliente.razon_social.ToLower().Contains(filtro)) ||
-                (cliente.cuil_cuit.ToString().ToLower().Contains(filtro)) ||
-                (cliente.fecha_alta.ToString("dd/MM/yyyy").ToLower().Contains(filtro)) ||
-                (cliente.estado ? "activo" : "inactivo").Contains(filtro) ||
-                (cliente.confiable ? "si" : "no").Contains(filtro) ||
-                (cliente.condicion_frenteIVA != null && cliente.condicion_frenteIVA.ToLower().Contains(filtro)) ||
-                (cliente.calle != null && cliente.calle.ToLower().Contains(filtro)) ||
-                (cliente.numero.ToString().ToLower().Contains(filtro)) ||
-                (cliente.ciudad != null && cliente.ciudad.ToLower().Contains(filtro)) ||
-                (cliente.provincia != null && cliente.provincia.ToLower().Contains(filtro)) ||
-                (cliente.cod_postal.ToString().ToLower().Contains(filtro)) ||
-                (tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion.ToLower().Contains(filtro) ?? false) ||
-                (zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre.ToLower().Contains(filtro) ?? false)
-            ).ToList();
-            // Limpiar las filas actuales del DataGridView
-            dgvClientes.Rows.Clear();
-            foreach (var cliente in clientesFiltrados)
-            {
-                string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                string confiableTexto = cliente.confiable ? "Si" : "No";
-                string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                dgvClientes.Rows.Add(
-                    cliente.id_cliente,
-                    cliente.dni,
-                    cliente.nombre,
-                    cliente.apellido,
-                    cliente.telefono,
-                    cliente.email,
-                    cliente.razon_social,
-                    cliente.cuil_cuit,
-                    cliente.fecha_alta,
-                    estadoTexto,
-                    confiableTexto,
-                    cliente.condicion_frenteIVA,
-                    cliente.calle,
-                    cliente.numero,
-                    cliente.ciudad,
-                    cliente.provincia,
-                    cliente.cod_postal,
-                    nombreTamano,
-                    nombreZona,
-                     cliente.id_tamano, cliente.id_zona
-                );
-            }
 
+            try
+            {
+                var clientesFiltrados = clienteLogica.BuscarClientesPorTexto(filtro);
+
+                dgvClientes.Rows.Clear();
+                dgvClientes.Visible = true;
+
+                if (clientesFiltrados.Any())
+                {
+                    CargarClientesEnGrid(clientesFiltrados);
+                }
+                else
+                {
+                    // Opcional: mostrar mensaje si no hay coincidencias
+                    // MessageBox.Show("No se encontraron coincidencias.", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al buscar clientes: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void comboBoxPreventista_SelectedIndexChanged(object sender, EventArgs e)
@@ -567,100 +477,60 @@ namespace ArimaERP.EmpleadoClientes
                 {
                     MessageBox.Show("El preventista seleccionado no tiene asignada una zona", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                
+
             }
         }
 
         private void comboBoxTipo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //si se selecciona Contado en comboBoxTipo, mostrar clientes no confiables
             if (cargandoFormulario || comboBoxTipo.SelectedIndex == -1)
                 return;
-            //si se selecciona Cuenta Corriente en comboBoxTipo, mostrar clientes confiables
-            if (comboBoxTipo.SelectedItem.ToString() == "Cuenta Corriente")
-            {
-                //mostrar clientes no confiables
-                dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientesConfiables();
 
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
+            string tipoSeleccionado = comboBoxTipo.SelectedItem.ToString();
+            List<CLIENTE> listaClientes = null;
+
+            if (tipoSeleccionado == "Cuenta Corriente")
+            {
+                listaClientes = clienteLogica.ObtenerClientesConfiables();
+                CargarClientesEnGrid(listaClientes);
+
+                dataGridViewCuentaCorriente.Visible = true;
+                dataGridViewCuentaCorriente.Rows.Clear();
+
                 foreach (var cliente in listaClientes)
                 {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                         cliente.id_tamano, cliente.id_zona
-                    );
-
+                    var cuenta = clienteLogica.ObtenerCuentaCorrientePorIdCliente(cliente.id_cliente);
+                    if (cuenta != null)
+                    {
+                        dataGridViewCuentaCorriente.Rows.Add(
+                            cliente.id_cliente,
+                            $"{cliente.nombre} {cliente.apellido}",
+                            cuenta.saldo_actual.ToString("C"),
+                            cuenta.fecha_ultimo_movimiento.ToString("dd/MM/yyyy")
+                        );
+                    }
                 }
-                comboBoxTipo.SelectedIndex = -1;
             }
-            //si se selecciona Contado en comboBoxTipo, mostrar clientes no confiables
-            else if (comboBoxTipo.SelectedItem.ToString() == "Contado")
+            else if (tipoSeleccionado == "Contado")
             {
-                //mostrar clientes confiables
-                dgvClientes.Rows.Clear();
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientesNoConfiables();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in listaClientes)
-                {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                         cliente.id_tamano, cliente.id_zona
-                    );
-                }
-                comboBoxTipo.SelectedIndex = -1;
+                listaClientes = clienteLogica.ObtenerClientesNoConfiables();
+                CargarClientesEnGrid(listaClientes);
+
+                // Limpiar y ocultar el grid de cuenta corriente
+                dataGridViewCuentaCorriente.Rows.Clear();
+                dataGridViewCuentaCorriente.Visible = false;
+            
             }
             else
             {
-                //mostrar todos los clientes
-                RecargardgvClientes();
-            }
+                listaClientes = clienteLogica.ObtenerClientes();
+                CargarClientesEnGrid(listaClientes);
+
+                // Limpiar y ocultar el grid de cuenta corriente
+                dataGridViewCuentaCorriente.Rows.Clear();
+                dataGridViewCuentaCorriente.Visible = false;
+            }           
+           
         }
 
         private void comboBoxZona_SelectedIndexChanged(object sender, EventArgs e)
@@ -712,94 +582,146 @@ namespace ArimaERP.EmpleadoClientes
 
         private void comboBoxEstado_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //filtrar clientes por estado
             if (cargandoFormulario || comboBoxEstado.SelectedIndex == -1)
                 return;
-            if (comboBoxEstado.SelectedItem.ToString() == "Activo")
+
+            string estadoSeleccionado = comboBoxEstado.SelectedItem.ToString();
+            List<CLIENTE> listaClientes;
+
+            if (estadoSeleccionado == "Activo")
             {
-                //mostrar clientes activos
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientesActivos();
-                dgvClientes.Rows.Clear();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in listaClientes)
-                {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
-                        estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                         cliente.id_tamano, cliente.id_zona
-                    );
-                }
-                cargandoFormulario = false;
-                comboBoxEstado.SelectedIndex = -1;
+                listaClientes = clienteLogica.ObtenerClientesActivos();
+            }
+            else if (estadoSeleccionado == "Inactivo")
+            {
+                listaClientes = clienteLogica.ObtenerClientesInactivos();
+            }
+            else
+            {
+                listaClientes = clienteLogica.ObtenerClientes();
             }
 
-            else if (comboBoxEstado.SelectedItem.ToString() == "Inactivo")
+            CargarClientesEnGrid(listaClientes);
+            comboBoxEstado.SelectedIndex = -1;
+        }
+
+        private void comboBoxTamano_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cargandoFormulario || comboBoxTamano.SelectedIndex == -1)
+                return;
+
+            if (comboBoxTamano.SelectedValue is int idTamano)
             {
-                //ver clientes inactivos
-                List<CLIENTE> listaClientes = clienteLogica.ObtenerClientesInactivos();
-                dgvClientes.Rows.Clear();
-                var zonas = clienteLogica.ObtenerZonas();
-                var tamanos = clienteLogica.ObtenerTamanos();
-                foreach (var cliente in listaClientes)
+                List<CLIENTE> clientesFiltrados = clienteLogica.ObtenerClientesPorTamanio(idTamano);
+                CargarClientesEnGrid(clientesFiltrados);
+            }
+            else
+            {
+                MessageBox.Show("No se pudo obtener el tamaño seleccionado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            comboBoxTamano.SelectedIndex = -1;
+        }
+
+        private void dgvClientes_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && dgvClientes.Columns[e.ColumnIndex].Name == "btnVerPedidos")
+            {
+                // Obtener ID del cliente seleccionado
+                int idCliente = Convert.ToInt32(dgvClientes.Rows[e.RowIndex].Cells["id_cliente"].Value);
+
+                // Obtener pedidos del cliente desde la capa lógica
+                var pedidos = pedidoLogica.ObtenerPedidosPorIdCliente(idCliente);
+
+                // Mostrar solo el grid de pedidos
+                dgvClientes.Visible = true;
+                dataGridViewDetallePagos.Visible = false;
+                dataGridViewVerPedidos.Visible = true;
+
+                // Limpiar y cargar pedidos
+                dataGridViewVerPedidos.Rows.Clear();
+                foreach (var pedido in pedidos)
                 {
-                    string estadoTexto = cliente.estado ? "Activo" : "Inactivo";
-                    string confiableTexto = cliente.confiable ? "Si" : "No";
-                    string nombreZona = zonas.FirstOrDefault(z => z.id_zona == cliente.id_zona)?.nombre ?? "Zona desconocida";
-                    string nombreTamano = tamanos.FirstOrDefault(t => t.id_tamano == cliente.id_tamano)?.descripcion ?? "Tamaño desconocido";
-                    dgvClientes.Rows.Add(
-                        cliente.id_cliente,
-                        cliente.dni,
-                        cliente.nombre,
-                        cliente.apellido,
-                        cliente.telefono,
-                        cliente.email,
-                        cliente.razon_social,
-                        cliente.cuil_cuit,
-                        cliente.fecha_alta,
+                    var cliente = clienteLogica.ObtenerClientePorId(pedido.id_cliente);
+                    string nombreCliente = cliente != null ? $"{cliente.nombre} {cliente.apellido}" : "Desconocido";
+                    var empleado = empleadoLogica.ObtenerEmpleadoPorNombreUsuario(pedido.vendedor);
+                    string nombreVendedor = empleado != null ? $"{empleado.nombre} {empleado.apellido}" : "Vendedor desconocido";
+                    string estadoTexto = pedido.id_estado == 1 ? "Pendiente" :
+                                         pedido.id_estado == 2 ? "En proceso" :
+                                         pedido.id_estado == 3 ? "Entregado" :
+                                         pedido.id_estado == 4 ? "Cancelado" : "Desconocido";
+
+                    dataGridViewVerPedidos.Rows.Add(
+                        pedido.id_pedido,
+                        pedido.fecha_creacion.ToString("dd/MM/yyyy"),
+                        pedido.fecha_entrega.ToString("dd/MM/yyyy"),
+                        pedido.id_cliente,
+                        nombreCliente,
+                        pedido.id_estado,
                         estadoTexto,
-                        confiableTexto,
-                        cliente.condicion_frenteIVA,
-                        cliente.calle,
-                        cliente.numero,
-                        cliente.ciudad,
-                        cliente.provincia,
-                        cliente.cod_postal,
-                        nombreTamano,
-                        nombreZona,
-                         cliente.id_tamano, cliente.id_zona
+                        pedido.total.ToString("C"),
+                        pedido.numero_factura,
+                        nombreVendedor
                     );
                 }
-                cargandoFormulario = false;
-                comboBoxEstado.SelectedIndex = -1;
             }
-            else            
+        }
+
+        private void dataGridViewVerPedidos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && dataGridViewVerPedidos.Columns[e.ColumnIndex].Name == "btnVerPagos")
+            {
+                int idPedido = Convert.ToInt32(dataGridViewVerPedidos.Rows[e.RowIndex].Cells["id_pedido"].Value);
+
+                // Obtener pagos relacionados al pedido
+                var pagosRelacionados = pagoLogica.ObtenerPedidoPagosPorIdPedido(idPedido);
+
+                // Mostrar solo el grid de pagos
+                dgvClientes.Visible = true;
+                dataGridViewVerPedidos.Visible = true;
+                dataGridViewDetallePagos.Visible = true;
+
+                // Limpiar y cargar pagos
+                dataGridViewDetallePagos.Rows.Clear();
+                foreach (var pedidoPago in pagosRelacionados)
                 {
-                    //mostrar todos los clientes
-                    RecargardgvClientes();
-                }            
-        }                
+                    // Obtener datos del pago
+                    var pago = pagoLogica.ObtenerPagoPorId(pedidoPago.id_pago); // Debés tener esta función en tu lógica
+                    var cliente = clienteLogica.ObtenerClientePorId(pago.id_cliente);
+                    var metodo = pagoLogica.ObtenerMetodoPagoPorId(pago.id_metodo);
+
+                    string nombreCliente = cliente != null ? $"{cliente.nombre} {cliente.apellido}" : "Desconocido";
+                    string nombreMetodo = metodo != null ? metodo.descripcion : "Método desconocido";
+
+                    dataGridViewDetallePagos.Rows.Add(
+                        pago.id_pago,
+                        pago.id_cliente,
+                        nombreCliente,
+                        pago.monto.ToString("C"),
+                        pago.fecha.ToString("dd/MM/yyyy"),
+                        pago.id_metodo,
+                        nombreMetodo
+                    );
+                }
+            }
+        }
+
+        private void dataGridViewCuentaCorriente_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void btnTodos_Click(object sender, EventArgs e)
+        {
+            var listaClientes = clienteLogica.ObtenerClientes();
+            CargarClientesEnGrid(listaClientes);
+            // Ocultar otros grids si estaban visibles
+            dataGridViewDetallePagos.Visible = false;
+            dataGridViewVerPedidos.Visible = false;
+            dataGridViewCuentaCorriente.Visible = false;
+
+            dgvClientes.Visible = true;
+        }
     }
 }
 
