@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Capa_Entidades;
+using Capa_Entidades.DTOs;
+
 
 namespace Capa_Datos
 {
@@ -108,5 +110,46 @@ namespace Capa_Datos
                 return false;
             }
         }
+
+
+        public List<CompraHistorialDto> ObtenerHistorialCompras()
+        {
+            ErroresValidacion.Clear();
+
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    var historial = context.detalle_compra
+                        .Include(d => d.compra)
+                        .Where(d => d.compra != null)
+                        .Select(d => new CompraHistorialDto
+                        {
+                            FechaCompra = d.compra.fecha,
+                            Cantidad = d.cantidad_bulto,
+                            Monto = d.compra.monto,
+                            NumeroFactura = d.compra.nro_factura,
+                            IdProducto = d.id_producto
+                        })
+                        .OrderByDescending(d => d.FechaCompra)
+                        .ThenByDescending(d => d.NumeroFactura)
+                        .ToList();
+
+                    return historial;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Add("Error al obtener el historial de compras: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    ErroresValidacion.Add("Detalle: " + ex.InnerException.Message);
+                }
+
+                return new List<CompraHistorialDto>();
+            }
+        }
+    }
+}
     }
 }

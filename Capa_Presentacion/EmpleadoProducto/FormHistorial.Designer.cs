@@ -32,9 +32,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dgvHistorial = new System.Windows.Forms.DataGridView();
             this.Cantidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Fecha = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FechaCompra = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Monto = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.NroFactura = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.NumeroFactura = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.IdProducto = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TLPBase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvHistorial)).BeginInit();
@@ -74,9 +74,9 @@
             this.dgvHistorial.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvHistorial.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Cantidad,
-            this.Fecha,
+            this.FechaCompra,
             this.Monto,
-            this.NroFactura,
+            this.NumeroFactura,
             this.IdProducto});
             this.dgvHistorial.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvHistorial.Location = new System.Drawing.Point(3, 48);
@@ -90,11 +90,11 @@
             this.Cantidad.Name = "Cantidad";
             this.Cantidad.Width = 150;
             // 
-            // Fecha
+            // FechaCompra
             // 
-            this.Fecha.HeaderText = "Fecha";
-            this.Fecha.Name = "Fecha";
-            this.Fecha.Width = 150;
+            this.FechaCompra.HeaderText = "Fecha";
+            this.FechaCompra.Name = "FechaCompra";
+            this.FechaCompra.Width = 150;
             // 
             // Monto
             // 
@@ -102,11 +102,11 @@
             this.Monto.Name = "Monto";
             this.Monto.Width = 150;
             // 
-            // NroFactura
+            // NumeroFactura
             // 
-            this.NroFactura.HeaderText = "Factura N°";
-            this.NroFactura.Name = "NroFactura";
-            this.NroFactura.Width = 150;
+            this.NumeroFactura.HeaderText = "Factura N°";
+            this.NumeroFactura.Name = "NumeroFactura";
+            this.NumeroFactura.Width = 150;
             // 
             // IdProducto
             // 
@@ -136,9 +136,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DataGridView dgvHistorial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Cantidad;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Fecha;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FechaCompra;
         private System.Windows.Forms.DataGridViewTextBoxColumn Monto;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NroFactura;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NumeroFactura;
         private System.Windows.Forms.DataGridViewTextBoxColumn IdProducto;
     }
 }
