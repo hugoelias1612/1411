@@ -475,7 +475,7 @@ namespace ArimaERP.EmpleadoProducto
                 fecha = DateTime.Now,
                 monto = totalCompra,
                 nro_factura = 0,
-                id_proveedor = idMarcaCompra
+                id_proveedor = 5, // Proveedor genérico
             };
 
             bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
