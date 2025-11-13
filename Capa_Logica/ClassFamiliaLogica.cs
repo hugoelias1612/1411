@@ -17,5 +17,10 @@ namespace Capa_Logica
         {
             return familia.ObtenerTodasLasFamilias();
         }
+
+        public List<FAMILIA> ObtenerFamiliasPorProveedor(int idProveedor)
+        {
+            return familia.ObtenerFamiliasPorProveedor(idProveedor);
+        }
     }
 }

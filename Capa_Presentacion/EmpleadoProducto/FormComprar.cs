@@ -14,7 +14,11 @@ namespace ArimaERP.EmpleadoProducto
         private readonly ClassProductoLogica _productoLogica = new ClassProductoLogica();
         private readonly ClassFamiliaLogica _familiaLogica = new ClassFamiliaLogica();
         private readonly ClassMarcaLogica _marcaLogica = new ClassMarcaLogica();
+        private readonly ClassProveedorLogica _proveedorLogica = new ClassProveedorLogica();
+        private readonly ClassCompraLogica _compraLogica = new ClassCompraLogica();
         private readonly CultureInfo _culturaMoneda = CultureInfo.GetCultureInfo("es-AR");
+        private int? _proveedorActualId;
+        private const decimal MargenPrecioCompra = 1.2m;
 
         public FormComprar()
         {
@@ -30,6 +34,7 @@ namespace ArimaERP.EmpleadoProducto
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             dataGridView1.CellValidating += DataGridView1_CellValidating;
             dataGridView1.EditingControlShowing += DataGridView1_EditingControlShowing;
+            cbxProveedor.SelectedIndexChanged += CbxProveedor_SelectedIndexChanged;
         }
 
         private void FormComprar_Load(object sender, EventArgs e)
@@ -52,87 +57,158 @@ namespace ArimaERP.EmpleadoProducto
                 dataGridView1.Columns["Total"].ReadOnly = true;
             }
 
-            CargarFamilias();
-            CargarMarcas();
+            CargarProveedores();
+            CargarFamilias(null);
+            CargarMarcas(null);
+            ActualizarEstadoFiltros(false);
             ActualizarLabelTotal(0m);
-            CargarProductos();
         }
 
-        private void CargarFamilias()
+        private void CargarProveedores()
         {
-            var familias = _familiaLogica.ObtenerTodasLasFamilias() ?? new List<FAMILIA>();
+            var proveedores = _proveedorLogica.ObtenerTodosLosProveedores() ?? new List<PROVEEDOR>();
 
-            if (!familias.Any() && _familiaLogica.ErroresValidacion.Any())
+            if (!proveedores.Any() && _proveedorLogica.ErroresValidacion.Any())
             {
-                MostrarErrores("Error al cargar familias", _familiaLogica.ErroresValidacion);
+                MostrarErrores("Error al cargar proveedores", _proveedorLogica.ErroresValidacion);
             }
 
-            var familiasConOpcionTodas = new List<FAMILIA>
+            var lista = new List<PROVEEDOR>
             {
-                new FAMILIA { id_familia = 0, descripcion = "Todas" }
+                new PROVEEDOR { id_proveedor = 0, nombre = "Seleccione un proveedor" }
             };
 
-            familiasConOpcionTodas.AddRange(familias.OrderBy(f => f.descripcion));
+            lista.AddRange(proveedores.OrderBy(p => p.nombre));
 
-            cbxFamilia.DataSource = familiasConOpcionTodas;
+            cbxProveedor.DataSource = lista;
+            cbxProveedor.DisplayMember = nameof(PROVEEDOR.nombre);
+            cbxProveedor.ValueMember = nameof(PROVEEDOR.id_proveedor);
+            cbxProveedor.SelectedIndex = 0;
+            _proveedorActualId = null;
+        }
+
+        private void CargarFamilias(int? idProveedor)
+        {
+            List<FAMILIA> familias = new List<FAMILIA>();
+
+            if (idProveedor.HasValue)
+            {
+                familias = _familiaLogica.ObtenerFamiliasPorProveedor(idProveedor.Value) ?? new List<FAMILIA>();
+
+                if (!familias.Any() && _familiaLogica.ErroresValidacion.Any())
+                {
+                    MostrarErrores("Error al cargar familias", _familiaLogica.ErroresValidacion);
+                }
+            }
+
+            string textoDefault = idProveedor.HasValue ? "Todas" : "Seleccione un proveedor";
+
+            var familiasConOpcion = new List<FAMILIA>
+            {
+                new FAMILIA { id_familia = 0, descripcion = textoDefault }
+            };
+
+            if (idProveedor.HasValue)
+            {
+                familiasConOpcion.AddRange(familias.OrderBy(f => f.descripcion));
+            }
+
+            cbxFamilia.DataSource = familiasConOpcion;
             cbxFamilia.DisplayMember = nameof(FAMILIA.descripcion);
             cbxFamilia.ValueMember = nameof(FAMILIA.id_familia);
             cbxFamilia.SelectedIndex = 0;
         }
 
-        private void CargarMarcas()
+        private void CargarMarcas(int? idProveedor)
         {
-            var marcas = _marcaLogica.ObtenerTodasLasMarcas() ?? new List<MARCA>();
+            List<MARCA> marcas = new List<MARCA>();
 
-            if (!marcas.Any() && _marcaLogica.ErroresValidacion.Any())
+            if (idProveedor.HasValue)
             {
-                MostrarErrores("Error al cargar marcas", _marcaLogica.ErroresValidacion);
+                marcas = _marcaLogica.ObtenerMarcasPorProveedor(idProveedor.Value) ?? new List<MARCA>();
+
+                if (!marcas.Any() && _marcaLogica.ErroresValidacion.Any())
+                {
+                    MostrarErrores("Error al cargar marcas", _marcaLogica.ErroresValidacion);
+                }
             }
 
-            var marcasConOpcionTodas = new List<MARCA>
+            string textoDefault = idProveedor.HasValue ? "Todas" : "Seleccione un proveedor";
+
+            var marcasConOpcion = new List<MARCA>
             {
-                new MARCA { id_marca = 0, nombre = "Todas" }
+                new MARCA { id_marca = 0, nombre = textoDefault }
             };
 
-            marcasConOpcionTodas.AddRange(marcas.OrderBy(m => m.nombre));
+            if (idProveedor.HasValue)
+            {
+                marcasConOpcion.AddRange(marcas.OrderBy(m => m.nombre));
+            }
 
-            cbxMarca.DataSource = marcasConOpcionTodas;
+            cbxMarca.DataSource = marcasConOpcion;
             cbxMarca.DisplayMember = nameof(MARCA.nombre);
             cbxMarca.ValueMember = nameof(MARCA.id_marca);
             cbxMarca.SelectedIndex = 0;
         }
 
+        private void ActualizarEstadoFiltros(bool habilitar)
+        {
+            cbxFamilia.Enabled = habilitar;
+            cbxMarca.Enabled = habilitar;
+            btnFiltrar.Enabled = habilitar;
+            button5.Enabled = habilitar;
+            txtBuscar.Enabled = habilitar;
+        }
+
         private void BtnFiltrar_Click(object sender, EventArgs e)
         {
-            CargarProductos();
+            CargarProductos(true);
         }
 
         private void BtnBuscarPorNombre_Click(object sender, EventArgs e)
         {
-            CargarProductos();
+            CargarProductos(true);
         }
 
         private void BtnLimpiarFiltros_Click(object sender, EventArgs e)
         {
-            cbxFamilia.SelectedIndex = 0;
-            cbxMarca.SelectedIndex = 0;
             txtBuscar.Clear();
-            CargarProductos();
+            cbxProveedor.SelectedIndex = 0;
         }
 
         private void BtnCarrito_Click(object sender, EventArgs e)
+        {
+            LimpiarCarrito();
+        }
+
+        private void LimpiarCarrito()
         {
             dataGridView1.Rows.Clear();
             ActualizarLabelTotal(0m);
         }
 
-        private void CargarProductos()
+        private void CargarProductos(bool mostrarMensajeSiProveedorNoSeleccionado = false)
         {
+            if (!TryObtenerProveedorSeleccionado(out int idProveedor))
+            {
+                if (mostrarMensajeSiProveedorNoSeleccionado)
+                {
+                    MessageBox.Show(
+                        "Debe seleccionar un proveedor antes de buscar productos.",
+                        "Proveedor requerido",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                dgvProductos.Rows.Clear();
+                return;
+            }
+
             string termino = txtBuscar.Text.Trim();
             int? idFamilia = ObtenerIdSeleccionado(cbxFamilia);
             int? idMarca = ObtenerIdSeleccionado(cbxMarca);
 
-            var productos = _productoLogica.BuscarCatalogoProductos(termino, idFamilia, idMarca, null, true);
+            var productos = _productoLogica.BuscarCatalogoProductos(termino, idFamilia, idMarca, idProveedor, true);
 
             if (_productoLogica.ErroresValidacion.Any())
             {
@@ -143,6 +219,35 @@ namespace ArimaERP.EmpleadoProducto
             ActualizarListadoProductos(productos);
         }
 
+        private void CbxProveedor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var proveedorSeleccionado = ObtenerIdSeleccionado(cbxProveedor);
+            bool cambioProveedor = _proveedorActualId != proveedorSeleccionado;
+            _proveedorActualId = proveedorSeleccionado;
+
+            if (!proveedorSeleccionado.HasValue)
+            {
+                ActualizarEstadoFiltros(false);
+                CargarFamilias(null);
+                CargarMarcas(null);
+                LimpiarCarrito();
+                dgvProductos.Rows.Clear();
+                return;
+            }
+
+            ActualizarEstadoFiltros(true);
+            CargarFamilias(proveedorSeleccionado.Value);
+            CargarMarcas(proveedorSeleccionado.Value);
+            txtBuscar.Clear();
+
+            if (cambioProveedor && dataGridView1.Rows.Count > 0)
+            {
+                LimpiarCarrito();
+            }
+
+            CargarProductos();
+        }
+
         private int? ObtenerIdSeleccionado(ComboBox comboBox)
         {
             if (comboBox.SelectedValue is int id && id != 0)
@@ -151,6 +256,19 @@ namespace ArimaERP.EmpleadoProducto
             }
 
             return null;
+        }
+
+        private bool TryObtenerProveedorSeleccionado(out int idProveedor)
+        {
+            var proveedorSeleccionado = ObtenerIdSeleccionado(cbxProveedor);
+            if (proveedorSeleccionado.HasValue)
+            {
+                idProveedor = proveedorSeleccionado.Value;
+                return true;
+            }
+
+            idProveedor = 0;
+            return false;
         }
 
         private void ActualizarListadoProductos(IEnumerable<ProductoCatalogoDto> productos)
@@ -340,8 +458,23 @@ namespace ArimaERP.EmpleadoProducto
             return valor.ToString("C2", _culturaMoneda);
         }
 
+        private decimal CalcularPrecioConMargen(decimal precioBase)
+        {
+            return Math.Round(precioBase * MargenPrecioCompra, 1, MidpointRounding.AwayFromZero);
+        }
+
         private void BtnConfirmar_Click(object sender, EventArgs e)
         {
+            if (!TryObtenerProveedorSeleccionado(out int idProveedor))
+            {
+                MessageBox.Show(
+                    "Debe seleccionar un proveedor antes de confirmar la compra.",
+                    "Proveedor requerido",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             var items = ObtenerItemsDelCarrito();
 
             if (!items.Any())
@@ -368,14 +501,40 @@ namespace ArimaERP.EmpleadoProducto
                 }
             }
 
+            var detalles = new List<detalle_compra>();
+            decimal totalCompra = 0m;
+
             foreach (var item in items)
             {
-                bool resultado = _productoLogica.AjustarStock(item.Producto.IdProducto, item.Producto.IdPresentacion, item.Cantidad);
-                if (!resultado)
+                decimal precioCompra = item.Producto.PrecioLista;
+                decimal precioConMargen = CalcularPrecioConMargen(precioCompra);
+
+                var detalle = new detalle_compra
                 {
-                    MostrarErrores("Error al actualizar el stock", _productoLogica.ErroresValidacion);
-                    return;
-                }
+                    cantidad_bulto = item.Cantidad,
+                    precio_unitario = precioConMargen,
+                    id_producto = item.Producto.IdProducto,
+                    ID_presentacion = item.Producto.IdPresentacion
+                };
+
+                detalles.Add(detalle);
+                totalCompra += precioCompra * item.Cantidad;
+            }
+
+            var nuevaCompra = new compra
+            {
+                fecha = DateTime.Now,
+                monto = totalCompra,
+                nro_factura = 0,
+                id_proveedor = idProveedor
+            };
+
+            bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
+
+            if (!resultadoCompra)
+            {
+                MostrarErrores("Error al registrar la compra", _compraLogica.ErroresValidacion);
+                return;
             }
 
             MessageBox.Show(
@@ -384,7 +543,7 @@ namespace ArimaERP.EmpleadoProducto
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
 
-            BtnCarrito_Click(this, EventArgs.Empty);
+            LimpiarCarrito();
             CargarProductos();
         }
 

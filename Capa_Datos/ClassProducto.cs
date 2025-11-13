@@ -220,7 +220,11 @@ namespace Capa_Datos
             }
         }
         //crear producto, presentación y stock inicial
-        public bool CrearProductoConPresentacionYStock(PRODUCTO nuevoProducto, producto_presentacion nuevaPresentacion, stock stockInicial)
+        public bool CrearProductoConPresentacionYStock(
+            PRODUCTO nuevoProducto,
+            producto_presentacion nuevaPresentacion,
+            stock stockInicial,
+            int? idProveedor = null)
         {
             try
             {

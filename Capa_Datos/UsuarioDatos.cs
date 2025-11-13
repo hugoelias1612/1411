@@ -14,7 +14,7 @@ namespace Capa_Datos
 {
     public class UsuarioDatos
     {
-        private string connectionString = "Data Source=MECHITA23\\SQLEXPRESS;Initial Catalog=ArimaERP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+        private string connectionString = "Data Source=.\\SQLEXPRESS;Initial Catalog=ArimaERP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
 
         public USUARIO ObtenerUsuarioPorNombre(string nombre)
         {

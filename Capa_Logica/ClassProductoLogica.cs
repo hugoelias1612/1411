@@ -240,7 +240,7 @@ namespace Capa_Logica
         }
         //crear producto y su presentación asociada
         // Se añadió 'unidadesPorBulto' en la firma y se asigna a presentacion.unidades_bulto
-        public bool CrearProducto(string nombre, int idFamilia, int idMarca, int codigoProducto, decimal precioLista, int idPresentacion, int stockInicial, int umbralStock, bool activo = true)
+        public bool CrearProducto(string nombre, int idFamilia, int idMarca, int idProveedor, int codigoProducto, decimal precioLista, int idPresentacion, int stockInicial, int umbralStock, bool activo = true)
         {
             try
             {
@@ -266,7 +266,7 @@ namespace Capa_Logica
                     umbral_stock = umbralStock
                 };
 
-                var resultado = classProducto.CrearProductoConPresentacionYStock(producto, presentacion, stock);
+                var resultado = classProducto.CrearProductoConPresentacionYStock(producto, presentacion, stock, idProveedor);
                 ErroresValidacion = classProducto.ErroresValidacion;
                 return resultado;
             }

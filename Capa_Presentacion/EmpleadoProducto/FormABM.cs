@@ -209,7 +209,7 @@ namespace ArimaERP.EmpleadoProducto
             bool creado;
             try
             {
-                creado = _productoLogica.CrearProducto(nombre, familiaId, marcaId, codigoProducto, precioLista, presentacionId, stockInicial, umbralStock);
+                creado = _productoLogica.CrearProducto(nombre, familiaId, marcaId, proveedorId, codigoProducto, precioLista, presentacionId, stockInicial, umbralStock);
             }
             catch (Exception ex)
             {

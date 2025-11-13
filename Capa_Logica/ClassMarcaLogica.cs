@@ -49,5 +49,14 @@ namespace Capa_Logica
             var marcaCreada = marca.CrearMarca(nuevaMarca);
             return marcaCreada;
         }
+
+        public List<MARCA> ObtenerMarcasPorProveedor(int idProveedor)
+        {
+            var marcas = marca.ObtenerMarcasPorProveedor(idProveedor);
+            ErroresValidacion = marca.ErroresValidacion;
+            return marcas;
+        }
+
+
     }
 }
