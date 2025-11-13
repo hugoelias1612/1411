@@ -240,7 +240,7 @@ namespace Capa_Logica
         }
         //crear producto y su presentación asociada
         // Se añadió 'unidadesPorBulto' en la firma y se asigna a presentacion.unidades_bulto
-        public bool CrearProducto(string nombre, int idFamilia, int idMarca, int idProveedor, int codigoProducto, decimal precioLista, int idPresentacion, int stockInicial, int umbralStock, bool activo = true)
+        public bool CrearProducto(string nombre, int idFamilia, int idMarca, int codigoProducto, decimal precioLista, int idPresentacion, int stockInicial, int umbralStock, bool activo = true)
         {
             try
             {
@@ -266,7 +266,7 @@ namespace Capa_Logica
                     umbral_stock = umbralStock
                 };
 
-                var resultado = classProducto.CrearProductoConPresentacionYStock(producto, presentacion, stock, idProveedor);
+                var resultado = classProducto.CrearProductoConPresentacionYStock(producto, presentacion, stock);
                 ErroresValidacion = classProducto.ErroresValidacion;
                 return resultado;
             }
@@ -290,9 +290,9 @@ namespace Capa_Logica
             ErroresValidacion = classProducto.ErroresValidacion;
             return presentaciones;
         }
-        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? idProveedor, bool? activo)
+        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? _idProveedor, bool? activo)
         {
-            var productos = classProducto.BuscarCatalogoProductos(termino, idFamilia, idMarca, idProveedor, activo);
+            var productos = classProducto.BuscarCatalogoProductos(termino, idFamilia, idMarca, _idProveedor, activo);
             ErroresValidacion = classProducto.ErroresValidacion;
             return productos;
         }

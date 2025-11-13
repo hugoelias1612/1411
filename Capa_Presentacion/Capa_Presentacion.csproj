@@ -287,6 +287,12 @@
     <Compile Include="EmpleadoProducto\FormVerProductosDadosDeBaja.Designer.cs">
       <DependentUpon>FormVerProductosDadosDeBaja.cs</DependentUpon>
     </Compile>
+    <Compile Include="EmpleadoProducto\FormHistorial.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EmpleadoProducto\FormHistorial.Designer.cs">
+      <DependentUpon>FormHistorial.cs</DependentUpon>
+    </Compile>
     <Compile Include="EmpleadoProducto\MDIProductos.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -438,6 +444,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EmpleadoProducto\FormFMP.resx">
       <DependentUpon>FormFMP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmpleadoProducto\FormHistorial.resx">
+      <DependentUpon>FormHistorial.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EmpleadoProducto\FormStock.resx">
       <DependentUpon>FormStock.cs</DependentUpon>

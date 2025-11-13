@@ -14,11 +14,11 @@ namespace ArimaERP.EmpleadoProducto
         private readonly ClassProductoLogica _productoLogica = new ClassProductoLogica();
         private readonly ClassFamiliaLogica _familiaLogica = new ClassFamiliaLogica();
         private readonly ClassMarcaLogica _marcaLogica = new ClassMarcaLogica();
-        private readonly ClassProveedorLogica _proveedorLogica = new ClassProveedorLogica();
         private readonly ClassCompraLogica _compraLogica = new ClassCompraLogica();
         private readonly CultureInfo _culturaMoneda = CultureInfo.GetCultureInfo("es-AR");
-        private int? _proveedorActualId;
-        private const decimal MargenPrecioCompra = 1.2m;
+        private int? _marcaActualId;
+        private const decimal MargenPrecioVenta = 1.2m;                   // 120%
+        private const decimal FactorCostoDesdeVenta = 1m / MargenPrecioVenta; // ≈ 0.833333m
 
         public FormComprar()
         {
@@ -34,7 +34,7 @@ namespace ArimaERP.EmpleadoProducto
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             dataGridView1.CellValidating += DataGridView1_CellValidating;
             dataGridView1.EditingControlShowing += DataGridView1_EditingControlShowing;
-            cbxProveedor.SelectedIndexChanged += CbxProveedor_SelectedIndexChanged;
+            cbxMarca.SelectedIndexChanged += CbxMarca_SelectedIndexChanged;
         }
 
         private void FormComprar_Load(object sender, EventArgs e)
@@ -57,61 +57,30 @@ namespace ArimaERP.EmpleadoProducto
                 dataGridView1.Columns["Total"].ReadOnly = true;
             }
 
-            CargarProveedores();
-            CargarFamilias(null);
-            CargarMarcas(null);
-            ActualizarEstadoFiltros(false);
+            CargarFamilias();
+            CargarMarcas();
+            ActualizarEstadoFiltros(true);
             ActualizarLabelTotal(0m);
+            CargarProductos();
         }
 
-        private void CargarProveedores()
-        {
-            var proveedores = _proveedorLogica.ObtenerTodosLosProveedores() ?? new List<PROVEEDOR>();
-
-            if (!proveedores.Any() && _proveedorLogica.ErroresValidacion.Any())
-            {
-                MostrarErrores("Error al cargar proveedores", _proveedorLogica.ErroresValidacion);
-            }
-
-            var lista = new List<PROVEEDOR>
-            {
-                new PROVEEDOR { id_proveedor = 0, nombre = "Seleccione un proveedor" }
-            };
-
-            lista.AddRange(proveedores.OrderBy(p => p.nombre));
-
-            cbxProveedor.DataSource = lista;
-            cbxProveedor.DisplayMember = nameof(PROVEEDOR.nombre);
-            cbxProveedor.ValueMember = nameof(PROVEEDOR.id_proveedor);
-            cbxProveedor.SelectedIndex = 0;
-            _proveedorActualId = null;
-        }
-
-        private void CargarFamilias(int? idProveedor)
+        private void CargarFamilias()
         {
             List<FAMILIA> familias = new List<FAMILIA>();
 
-            if (idProveedor.HasValue)
+            familias = _familiaLogica.ObtenerTodasLasFamilias() ?? new List<FAMILIA>();
+
+            if (!familias.Any() && _familiaLogica.ErroresValidacion.Any())
             {
-                familias = _familiaLogica.ObtenerFamiliasPorProveedor(idProveedor.Value) ?? new List<FAMILIA>();
-
-                if (!familias.Any() && _familiaLogica.ErroresValidacion.Any())
-                {
-                    MostrarErrores("Error al cargar familias", _familiaLogica.ErroresValidacion);
-                }
+                MostrarErrores("Error al cargar familias", _familiaLogica.ErroresValidacion);
             }
-
-            string textoDefault = idProveedor.HasValue ? "Todas" : "Seleccione un proveedor";
 
             var familiasConOpcion = new List<FAMILIA>
             {
-                new FAMILIA { id_familia = 0, descripcion = textoDefault }
+                new FAMILIA { id_familia = 0, descripcion = "Todas" }
             };
 
-            if (idProveedor.HasValue)
-            {
-                familiasConOpcion.AddRange(familias.OrderBy(f => f.descripcion));
-            }
+            familiasConOpcion.AddRange(familias.OrderBy(f => f.descripcion));
 
             cbxFamilia.DataSource = familiasConOpcion;
             cbxFamilia.DisplayMember = nameof(FAMILIA.descripcion);
@@ -119,36 +88,29 @@ namespace ArimaERP.EmpleadoProducto
             cbxFamilia.SelectedIndex = 0;
         }
 
-        private void CargarMarcas(int? idProveedor)
+        private void CargarMarcas()
         {
             List<MARCA> marcas = new List<MARCA>();
 
-            if (idProveedor.HasValue)
+            marcas = _marcaLogica.ObtenerTodasLasMarcas() ?? new List<MARCA>();
+
+            if (!marcas.Any() && _marcaLogica.ErroresValidacion.Any())
             {
-                marcas = _marcaLogica.ObtenerMarcasPorProveedor(idProveedor.Value) ?? new List<MARCA>();
-
-                if (!marcas.Any() && _marcaLogica.ErroresValidacion.Any())
-                {
-                    MostrarErrores("Error al cargar marcas", _marcaLogica.ErroresValidacion);
-                }
+                MostrarErrores("Error al cargar marcas", _marcaLogica.ErroresValidacion);
             }
-
-            string textoDefault = idProveedor.HasValue ? "Todas" : "Seleccione un proveedor";
 
             var marcasConOpcion = new List<MARCA>
             {
-                new MARCA { id_marca = 0, nombre = textoDefault }
+                new MARCA { id_marca = 0, nombre = "Todas" }
             };
 
-            if (idProveedor.HasValue)
-            {
-                marcasConOpcion.AddRange(marcas.OrderBy(m => m.nombre));
-            }
+            marcasConOpcion.AddRange(marcas.OrderBy(m => m.nombre));
 
             cbxMarca.DataSource = marcasConOpcion;
             cbxMarca.DisplayMember = nameof(MARCA.nombre);
             cbxMarca.ValueMember = nameof(MARCA.id_marca);
             cbxMarca.SelectedIndex = 0;
+            _marcaActualId = ObtenerIdSeleccionado(cbxMarca);
         }
 
         private void ActualizarEstadoFiltros(bool habilitar)
@@ -162,18 +124,28 @@ namespace ArimaERP.EmpleadoProducto
 
         private void BtnFiltrar_Click(object sender, EventArgs e)
         {
-            CargarProductos(true);
+            CargarProductos();
         }
 
         private void BtnBuscarPorNombre_Click(object sender, EventArgs e)
         {
-            CargarProductos(true);
+            CargarProductos();
         }
 
         private void BtnLimpiarFiltros_Click(object sender, EventArgs e)
         {
             txtBuscar.Clear();
-            cbxProveedor.SelectedIndex = 0;
+            if (cbxFamilia.Items.Count > 0)
+            {
+                cbxFamilia.SelectedIndex = 0;
+            }
+
+            if (cbxMarca.Items.Count > 0)
+            {
+                cbxMarca.SelectedIndex = 0;
+            }
+
+            CargarProductos();
         }
 
         private void BtnCarrito_Click(object sender, EventArgs e)
@@ -187,28 +159,13 @@ namespace ArimaERP.EmpleadoProducto
             ActualizarLabelTotal(0m);
         }
 
-        private void CargarProductos(bool mostrarMensajeSiProveedorNoSeleccionado = false)
+        private void CargarProductos()
         {
-            if (!TryObtenerProveedorSeleccionado(out int idProveedor))
-            {
-                if (mostrarMensajeSiProveedorNoSeleccionado)
-                {
-                    MessageBox.Show(
-                        "Debe seleccionar un proveedor antes de buscar productos.",
-                        "Proveedor requerido",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
-
-                dgvProductos.Rows.Clear();
-                return;
-            }
-
             string termino = txtBuscar.Text.Trim();
             int? idFamilia = ObtenerIdSeleccionado(cbxFamilia);
             int? idMarca = ObtenerIdSeleccionado(cbxMarca);
 
-            var productos = _productoLogica.BuscarCatalogoProductos(termino, idFamilia, idMarca, idProveedor, true);
+            var productos = _productoLogica.BuscarCatalogoProductos(termino, idFamilia, idMarca, null, true);
 
             if (_productoLogica.ErroresValidacion.Any())
             {
@@ -217,35 +174,6 @@ namespace ArimaERP.EmpleadoProducto
             }
 
             ActualizarListadoProductos(productos);
-        }
-
-        private void CbxProveedor_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var proveedorSeleccionado = ObtenerIdSeleccionado(cbxProveedor);
-            bool cambioProveedor = _proveedorActualId != proveedorSeleccionado;
-            _proveedorActualId = proveedorSeleccionado;
-
-            if (!proveedorSeleccionado.HasValue)
-            {
-                ActualizarEstadoFiltros(false);
-                CargarFamilias(null);
-                CargarMarcas(null);
-                LimpiarCarrito();
-                dgvProductos.Rows.Clear();
-                return;
-            }
-
-            ActualizarEstadoFiltros(true);
-            CargarFamilias(proveedorSeleccionado.Value);
-            CargarMarcas(proveedorSeleccionado.Value);
-            txtBuscar.Clear();
-
-            if (cambioProveedor && dataGridView1.Rows.Count > 0)
-            {
-                LimpiarCarrito();
-            }
-
-            CargarProductos();
         }
 
         private int? ObtenerIdSeleccionado(ComboBox comboBox)
@@ -258,17 +186,18 @@ namespace ArimaERP.EmpleadoProducto
             return null;
         }
 
-        private bool TryObtenerProveedorSeleccionado(out int idProveedor)
+        private void CbxMarca_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var proveedorSeleccionado = ObtenerIdSeleccionado(cbxProveedor);
-            if (proveedorSeleccionado.HasValue)
+            var marcaSeleccionada = ObtenerIdSeleccionado(cbxMarca);
+            bool cambioMarca = _marcaActualId != marcaSeleccionada;
+            _marcaActualId = marcaSeleccionada;
+
+            if (cambioMarca && dataGridView1.Rows.Count > 0)
             {
-                idProveedor = proveedorSeleccionado.Value;
-                return true;
+                LimpiarCarrito();
             }
 
-            idProveedor = 0;
-            return false;
+            CargarProductos();
         }
 
         private void ActualizarListadoProductos(IEnumerable<ProductoCatalogoDto> productos)
@@ -424,26 +353,28 @@ namespace ArimaERP.EmpleadoProducto
                 int.TryParse(fila.Cells["Cantidad"].Value.ToString(), out cantidad);
             }
 
-            decimal total = producto.PrecioLista * cantidad;
+            decimal precioCompra = CalcularPrecioCompraDesdeLista(producto.PrecioLista);
+            decimal total = precioCompra * cantidad;
             fila.Cells["Total"].Value = FormatearMoneda(total);
         }
 
         private void ActualizarTotalesCarrito()
         {
             decimal total = dataGridView1.Rows
-                .Cast<DataGridViewRow>()
-                .Where(r => !r.IsNewRow && r.Tag is ProductoCatalogoDto)
-                .Sum(r =>
-                {
-                    var producto = (ProductoCatalogoDto)r.Tag;
-                    int cantidad = 0;
-                    if (r.Cells["Cantidad"].Value != null)
-                    {
-                        int.TryParse(r.Cells["Cantidad"].Value.ToString(), out cantidad);
-                    }
+          .Cast<DataGridViewRow>()
+          .Where(r => !r.IsNewRow && r.Tag is ProductoCatalogoDto)
+          .Sum(r =>
+          {
+              var producto = (ProductoCatalogoDto)r.Tag;
+              int cantidad = 0;
+              if (r.Cells["Cantidad"].Value != null)
+              {
+                  int.TryParse(r.Cells["Cantidad"].Value.ToString(), out cantidad);
+              }
 
-                    return producto.PrecioLista * cantidad;
-                });
+              decimal precioCompra = CalcularPrecioCompraDesdeLista(producto.PrecioLista);
+              return precioCompra * cantidad;
+          });
 
             ActualizarLabelTotal(total);
         }
@@ -458,23 +389,14 @@ namespace ArimaERP.EmpleadoProducto
             return valor.ToString("C2", _culturaMoneda);
         }
 
-        private decimal CalcularPrecioConMargen(decimal precioBase)
+        private decimal CalcularPrecioCompraDesdeLista(decimal precioLista)
         {
-            return Math.Round(precioBase * MargenPrecioCompra, 1, MidpointRounding.AwayFromZero);
+            // 3 decimales: 0.833
+            return Math.Round(precioLista * FactorCostoDesdeVenta, 3, MidpointRounding.AwayFromZero);
         }
 
         private void BtnConfirmar_Click(object sender, EventArgs e)
         {
-            if (!TryObtenerProveedorSeleccionado(out int idProveedor))
-            {
-                MessageBox.Show(
-                    "Debe seleccionar un proveedor antes de confirmar la compra.",
-                    "Proveedor requerido",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                return;
-            }
-
             var items = ObtenerItemsDelCarrito();
 
             if (!items.Any())
@@ -501,24 +423,51 @@ namespace ArimaERP.EmpleadoProducto
                 }
             }
 
+            var marcasEnCarrito = items
+                .Select(i => i.Producto.IdMarca)
+                .Distinct()
+                .ToList();
+
+            if (marcasEnCarrito.Count > 1)
+            {
+                MessageBox.Show(
+                    "Todos los productos del carrito deben pertenecer a la misma marca para confirmar la compra.",
+                    "Marcas diferentes",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!marcasEnCarrito.Any())
+            {
+                MessageBox.Show(
+                    "No se pudo determinar la marca asociada a los productos seleccionados.",
+                    "Marca no encontrada",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            int idMarcaCompra = marcasEnCarrito.First();
+
             var detalles = new List<detalle_compra>();
             decimal totalCompra = 0m;
 
             foreach (var item in items)
             {
-                decimal precioCompra = item.Producto.PrecioLista;
-                decimal precioConMargen = CalcularPrecioConMargen(precioCompra);
+                decimal precioLista = item.Producto.PrecioLista;
+                decimal precioCompra = CalcularPrecioCompraDesdeLista(precioLista); // 0.833 × lista
 
                 var detalle = new detalle_compra
                 {
                     cantidad_bulto = item.Cantidad,
-                    precio_unitario = precioConMargen,
+                    precio_unitario = precioCompra,                 // se guarda el 0.833 del precio lista
                     id_producto = item.Producto.IdProducto,
                     ID_presentacion = item.Producto.IdPresentacion
                 };
 
                 detalles.Add(detalle);
-                totalCompra += precioCompra * item.Cantidad;
+                totalCompra += precioCompra * item.Cantidad;        // el monto de la compra también al costo
             }
 
             var nuevaCompra = new compra
@@ -526,7 +475,7 @@ namespace ArimaERP.EmpleadoProducto
                 fecha = DateTime.Now,
                 monto = totalCompra,
                 nro_factura = 0,
-                id_proveedor = idProveedor
+                id_proveedor = idMarcaCompra
             };
 
             bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
@@ -546,7 +495,6 @@ namespace ArimaERP.EmpleadoProducto
             LimpiarCarrito();
             CargarProductos();
         }
-
         private void SeleccionarFilaConProducto(ProductoCatalogoDto producto)
         {
             foreach (DataGridViewRow fila in dataGridView1.Rows)

@@ -8,6 +8,7 @@ namespace Capa_Entidades.DTOs
         public int IdPresentacion { get; set; }
         public int Codigo { get; set; }
         public string Nombre { get; set; }
+        public int IdMarca { get; set; }
         public string Marca { get; set; }
         public string Familia { get; set; }
         public string Presentacion { get; set; }

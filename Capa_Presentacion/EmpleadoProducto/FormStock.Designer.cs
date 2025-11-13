@@ -44,10 +44,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.TLPFooter = new System.Windows.Forms.TableLayoutPanel();
             this.BHistorial = new System.Windows.Forms.Button();
-            this.BMasvendidos = new System.Windows.Forms.Button();
-            this.BLimpiar = new System.Windows.Forms.Button();
             this.BBuscar = new System.Windows.Forms.Button();
             this.BComprar = new System.Windows.Forms.Button();
+            this.BMasvendidos = new System.Windows.Forms.Button();
+            this.BLimpiar = new System.Windows.Forms.Button();
             this.TLPGrid = new System.Windows.Forms.TableLayoutPanel();
             this.DGResultados = new System.Windows.Forms.DataGridView();
             this.ColumnaNombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -117,16 +117,16 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.16996F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8.616601F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17.47036F));
-            this.tableLayoutPanel2.Controls.Add(this.CbProveedor, 2, 1);
-            this.tableLayoutPanel2.Controls.Add(this.LProveedor, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.label11, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.CbFamilia, 1, 1);
             this.tableLayoutPanel2.Controls.Add(this.label9, 4, 0);
             this.tableLayoutPanel2.Controls.Add(this.TNombreContiene, 4, 1);
             this.tableLayoutPanel2.Controls.Add(this.LMarca, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.CbMarca, 3, 1);
             this.tableLayoutPanel2.Controls.Add(this.BFiltrar, 6, 1);
             this.tableLayoutPanel2.Controls.Add(this.BVertodos, 5, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label11, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.LProveedor, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.CbFamilia, 2, 1);
+            this.tableLayoutPanel2.Controls.Add(this.CbProveedor, 1, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 68);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
@@ -144,7 +144,7 @@
             this.CbProveedor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CbProveedor.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.CbProveedor.FormattingEnabled = true;
-            this.CbProveedor.Location = new System.Drawing.Point(377, 42);
+            this.CbProveedor.Location = new System.Drawing.Point(238, 42);
             this.CbProveedor.Name = "CbProveedor";
             this.CbProveedor.Size = new System.Drawing.Size(120, 21);
             this.CbProveedor.TabIndex = 11;
@@ -155,7 +155,7 @@
             this.LProveedor.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.LProveedor.AutoSize = true;
             this.LProveedor.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LProveedor.Location = new System.Drawing.Point(387, 3);
+            this.LProveedor.Location = new System.Drawing.Point(249, 3);
             this.LProveedor.Name = "LProveedor";
             this.LProveedor.Size = new System.Drawing.Size(99, 25);
             this.LProveedor.TabIndex = 3;
@@ -168,7 +168,7 @@
             this.label11.AutoSize = true;
             this.label11.Cursor = System.Windows.Forms.Cursors.SizeNESW;
             this.label11.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(263, 3);
+            this.label11.Location = new System.Drawing.Point(401, 3);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(71, 25);
             this.label11.TabIndex = 0;
@@ -181,7 +181,7 @@
             this.CbFamilia.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CbFamilia.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.CbFamilia.FormattingEnabled = true;
-            this.CbFamilia.Location = new System.Drawing.Point(238, 42);
+            this.CbFamilia.Location = new System.Drawing.Point(377, 42);
             this.CbFamilia.Name = "CbFamilia";
             this.CbFamilia.Size = new System.Drawing.Size(120, 21);
             this.CbFamilia.TabIndex = 1;
@@ -228,6 +228,7 @@
             this.CbMarca.Name = "CbMarca";
             this.CbMarca.Size = new System.Drawing.Size(120, 21);
             this.CbMarca.TabIndex = 20;
+            this.CbMarca.SelectedIndexChanged += new System.EventHandler(this.CbMarca_SelectedIndexChanged);
             // 
             // BFiltrar
             // 
@@ -311,37 +312,6 @@
             this.BHistorial.UseVisualStyleBackColor = false;
             this.BHistorial.Visible = false;
             // 
-            // BMasvendidos
-            // 
-            this.BMasvendidos.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.BMasvendidos.BackColor = System.Drawing.Color.LightSlateGray;
-            this.BMasvendidos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.BMasvendidos.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BMasvendidos.ForeColor = System.Drawing.SystemColors.Window;
-            this.BMasvendidos.Location = new System.Drawing.Point(548, 29);
-            this.BMasvendidos.Margin = new System.Windows.Forms.Padding(0);
-            this.BMasvendidos.Name = "BMasvendidos";
-            this.BMasvendidos.Size = new System.Drawing.Size(165, 28);
-            this.BMasvendidos.TabIndex = 5;
-            this.BMasvendidos.Text = "Ver productos mas vendidos";
-            this.BMasvendidos.UseVisualStyleBackColor = false;
-            this.BMasvendidos.Visible = false;
-            // 
-            // BLimpiar
-            // 
-            this.BLimpiar.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.BLimpiar.BackColor = System.Drawing.Color.LightSlateGray;
-            this.BLimpiar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.BLimpiar.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BLimpiar.ForeColor = System.Drawing.SystemColors.Window;
-            this.BLimpiar.Location = new System.Drawing.Point(359, 29);
-            this.BLimpiar.Margin = new System.Windows.Forms.Padding(0);
-            this.BLimpiar.Name = "BLimpiar";
-            this.BLimpiar.Size = new System.Drawing.Size(165, 28);
-            this.BLimpiar.TabIndex = 2;
-            this.BLimpiar.Text = "Alertas Stock Bajo";
-            this.BLimpiar.UseVisualStyleBackColor = false;
-            // 
             // BBuscar
             // 
             this.BBuscar.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -372,6 +342,37 @@
             this.BComprar.TabIndex = 3;
             this.BComprar.Text = "Comprar";
             this.BComprar.UseVisualStyleBackColor = false;
+            // 
+            // BMasvendidos
+            // 
+            this.BMasvendidos.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.BMasvendidos.BackColor = System.Drawing.Color.LightSlateGray;
+            this.BMasvendidos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BMasvendidos.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BMasvendidos.ForeColor = System.Drawing.SystemColors.Window;
+            this.BMasvendidos.Location = new System.Drawing.Point(548, 29);
+            this.BMasvendidos.Margin = new System.Windows.Forms.Padding(0);
+            this.BMasvendidos.Name = "BMasvendidos";
+            this.BMasvendidos.Size = new System.Drawing.Size(165, 28);
+            this.BMasvendidos.TabIndex = 5;
+            this.BMasvendidos.Text = "Ver productos mas vendidos";
+            this.BMasvendidos.UseVisualStyleBackColor = false;
+            this.BMasvendidos.Visible = false;
+            // 
+            // BLimpiar
+            // 
+            this.BLimpiar.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.BLimpiar.BackColor = System.Drawing.Color.LightSlateGray;
+            this.BLimpiar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BLimpiar.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BLimpiar.ForeColor = System.Drawing.SystemColors.Window;
+            this.BLimpiar.Location = new System.Drawing.Point(359, 29);
+            this.BLimpiar.Margin = new System.Windows.Forms.Padding(0);
+            this.BLimpiar.Name = "BLimpiar";
+            this.BLimpiar.Size = new System.Drawing.Size(165, 28);
+            this.BLimpiar.TabIndex = 2;
+            this.BLimpiar.Text = "Alertas Stock Bajo";
+            this.BLimpiar.UseVisualStyleBackColor = false;
             // 
             // TLPGrid
             // 

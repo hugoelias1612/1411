@@ -246,5 +246,10 @@ namespace ArimaERP.EmpleadoProducto
         {
             // Intencionalmente vacío: el diseñador referenciaba este handler.
         }
+
+        private void CbMarca_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

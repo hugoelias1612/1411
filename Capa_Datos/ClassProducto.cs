@@ -223,8 +223,7 @@ namespace Capa_Datos
         public bool CrearProductoConPresentacionYStock(
             PRODUCTO nuevoProducto,
             producto_presentacion nuevaPresentacion,
-            stock stockInicial,
-            int? idProveedor = null)
+            stock stockInicial)
         {
             try
             {
@@ -296,7 +295,7 @@ namespace Capa_Datos
                 return false;
             }
         }
-        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? idProveedor, bool? activo)
+        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? _idProveedor, bool? activo)
         {
             try
             {
@@ -330,12 +329,6 @@ namespace Capa_Datos
                     {
                         int marcaId = idMarca.Value;
                         query = query.Where(x => x.producto.id_marca == marcaId);
-                    }
-
-                    if (idProveedor.HasValue)
-                    {
-                        int proveedorId = idProveedor.Value;
-                        query = query.Where(x => x.proveedor != null && x.proveedor.id_proveedor == proveedorId);
                     }
 
                     if (!string.IsNullOrWhiteSpace(termino))
