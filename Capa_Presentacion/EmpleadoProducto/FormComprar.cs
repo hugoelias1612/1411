@@ -18,7 +18,7 @@ namespace ArimaERP.EmpleadoProducto
         private readonly CultureInfo _culturaMoneda = CultureInfo.GetCultureInfo("es-AR");
         private int? _marcaActualId;
         private const decimal MargenPrecioVenta = 1.2m;                   // 120%
-        private const decimal FactorCostoDesdeVenta = 1m / MargenPrecioVenta; // ≈ 0.833333m
+        private const decimal FactorCostoDesdeVenta = 1m / MargenPrecioVenta; //
 
         public FormComprar()
         {
@@ -29,7 +29,8 @@ namespace ArimaERP.EmpleadoProducto
             button4.Click += BtnLimpiarFiltros_Click;
             button5.Click += BtnBuscarPorNombre_Click;
             btnCarrito.Click += BtnCarrito_Click;
-            btnConfirmar.Click += BtnConfirmar_Click;
+            btnConfirmar.Click += btnConfirmar_Click;
+            btnGuardar.Click += btnGuardar_Click;
             dgvProductos.CellContentClick += DgvProductos_CellContentClick;
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             dataGridView1.CellValidating += DataGridView1_CellValidating;
@@ -153,6 +154,33 @@ namespace ArimaERP.EmpleadoProducto
             LimpiarCarrito();
         }
 
+        private void BtnHistorialCompras_Click(object sender, EventArgs e)
+        {
+            var historial = _compraLogica.ObtenerHistorialCompras() ?? new List<CompraHistorialDto>();
+
+            if (_compraLogica.ErroresValidacion.Any())
+            {
+                MostrarErrores("Error al cargar el historial de compras", _compraLogica.ErroresValidacion);
+                return;
+            }
+
+            using (var historialForm = new FormHistorialCompras())
+            {
+                historialForm.CargarHistorial(historial);
+
+                if (!historial.Any())
+                {
+                    MessageBox.Show(
+                        "Aún no hay compras registradas para mostrar.",
+                        "Historial vacío",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                historialForm.ShowDialog(this);
+            }
+        }
+
         private void LimpiarCarrito()
         {
             dataGridView1.Rows.Clear();
@@ -221,6 +249,8 @@ namespace ArimaERP.EmpleadoProducto
                     MessageBoxIcon.Information);
             }
         }
+
+
 
         private void DgvProductos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -395,7 +425,7 @@ namespace ArimaERP.EmpleadoProducto
             return Math.Round(precioLista * FactorCostoDesdeVenta, 3, MidpointRounding.AwayFromZero);
         }
 
-        private void BtnConfirmar_Click(object sender, EventArgs e)
+        private void btnConfirmar_Click(object sender, EventArgs e)
         {
             var items = ObtenerItemsDelCarrito();
 
@@ -470,12 +500,14 @@ namespace ArimaERP.EmpleadoProducto
                 totalCompra += precioCompra * item.Cantidad;        // el monto de la compra también al costo
             }
 
+            int nro = _compraLogica.ObtenerSiguienteNumeroFactura();
+
             var nuevaCompra = new compra
             {
                 fecha = DateTime.Now,
                 monto = totalCompra,
-                nro_factura = 0,
-                id_proveedor = 5, // Proveedor genérico
+                nro_factura = nro,
+                id_proveedor = 5
             };
 
             bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
@@ -569,5 +601,38 @@ namespace ArimaERP.EmpleadoProducto
         private void TLPFooter_Paint(object sender, PaintEventArgs e)
         {
         }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            var historial = _compraLogica.ObtenerHistorialCompras() ?? new List<CompraHistorialDto>();
+
+            if (_compraLogica.ErroresValidacion.Any())
+            {
+                MostrarErrores("Error al cargar el historial de compras", _compraLogica.ErroresValidacion);
+                return;
+            }
+
+            using (var historialForm = new FormHistorialCompras())
+            {
+                historialForm.CargarHistorial(historial);
+
+                if (!historial.Any())
+                {
+                    MessageBox.Show(
+                        "Aún no hay compras registradas para mostrar.",
+                        "Historial vacío",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                historialForm.ShowDialog(this);
+            }
+        }
+
+        private void cbxProveedor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

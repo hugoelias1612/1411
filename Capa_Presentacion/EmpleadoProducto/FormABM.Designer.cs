@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.TLPMain = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTitulo = new System.Windows.Forms.Label();
@@ -291,28 +291,28 @@
             this.tlpAlta.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tlpAlta.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tlpAlta.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tlpAlta.Controls.Add(this.lblMarca, 1, 4);
-            this.tlpAlta.Controls.Add(this.lblProveedor, 1, 3);
             this.tlpAlta.Controls.Add(this.lblFamilia, 1, 2);
             this.tlpAlta.Controls.Add(this.lblNombre, 1, 1);
             this.tlpAlta.Controls.Add(this.cbxFamilia, 2, 2);
-            this.tlpAlta.Controls.Add(this.cbxProveedor, 2, 3);
-            this.tlpAlta.Controls.Add(this.cbxMarca, 2, 4);
-            this.tlpAlta.Controls.Add(this.btnCrear, 1, 10);
-            this.tlpAlta.Controls.Add(this.btnLimpiar, 2, 10);
             this.tlpAlta.Controls.Add(this.lblCodigo, 1, 0);
             this.tlpAlta.Controls.Add(this.textBoxCodigo, 2, 0);
             this.tlpAlta.Controls.Add(this.txtNombre, 2, 1);
-            this.tlpAlta.Controls.Add(this.nudBultosIniciales, 2, 8);
-            this.tlpAlta.Controls.Add(this.lblBultosIniciales, 1, 8);
-            this.tlpAlta.Controls.Add(this.lblPrecio, 1, 6);
-            this.tlpAlta.Controls.Add(this.txtPrecioUnit, 2, 6);
-            this.tlpAlta.Controls.Add(this.lblPresentacion, 1, 5);
-            this.tlpAlta.Controls.Add(this.cbxPresentacion, 2, 5);
-            this.tlpAlta.Controls.Add(this.lblUPB, 1, 9);
             this.tlpAlta.Controls.Add(this.lblUnidadesIniciales, 1, 7);
-            this.tlpAlta.Controls.Add(this.nudUPB, 2, 9);
             this.tlpAlta.Controls.Add(this.nudUnidadesIniciales, 2, 7);
+            this.tlpAlta.Controls.Add(this.lblMarca, 1, 3);
+            this.tlpAlta.Controls.Add(this.cbxMarca, 2, 3);
+            this.tlpAlta.Controls.Add(this.lblPresentacion, 1, 4);
+            this.tlpAlta.Controls.Add(this.cbxPresentacion, 2, 4);
+            this.tlpAlta.Controls.Add(this.lblPrecio, 1, 5);
+            this.tlpAlta.Controls.Add(this.txtPrecioUnit, 2, 5);
+            this.tlpAlta.Controls.Add(this.lblBultosIniciales, 1, 6);
+            this.tlpAlta.Controls.Add(this.lblUPB, 1, 8);
+            this.tlpAlta.Controls.Add(this.nudBultosIniciales, 2, 6);
+            this.tlpAlta.Controls.Add(this.nudUPB, 2, 8);
+            this.tlpAlta.Controls.Add(this.lblProveedor, 1, 10);
+            this.tlpAlta.Controls.Add(this.btnCrear, 1, 9);
+            this.tlpAlta.Controls.Add(this.cbxProveedor, 2, 10);
+            this.tlpAlta.Controls.Add(this.btnLimpiar, 2, 9);
             this.tlpAlta.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpAlta.Location = new System.Drawing.Point(0, 0);
             this.tlpAlta.Margin = new System.Windows.Forms.Padding(0);
@@ -337,7 +337,7 @@
             this.lblMarca.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblMarca.AutoSize = true;
             this.lblMarca.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMarca.Location = new System.Drawing.Point(378, 141);
+            this.lblMarca.Location = new System.Drawing.Point(378, 105);
             this.lblMarca.Name = "lblMarca";
             this.lblMarca.Size = new System.Drawing.Size(90, 36);
             this.lblMarca.TabIndex = 17;
@@ -348,9 +348,9 @@
             this.lblProveedor.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblProveedor.AutoSize = true;
             this.lblProveedor.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblProveedor.Location = new System.Drawing.Point(353, 105);
+            this.lblProveedor.Location = new System.Drawing.Point(353, 359);
             this.lblProveedor.Name = "lblProveedor";
-            this.lblProveedor.Size = new System.Drawing.Size(139, 36);
+            this.lblProveedor.Size = new System.Drawing.Size(139, 37);
             this.lblProveedor.TabIndex = 13;
             this.lblProveedor.Text = "Proveedor";
             this.lblProveedor.Visible = false;
@@ -393,7 +393,7 @@
             this.cbxProveedor.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.cbxProveedor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxProveedor.FormattingEnabled = true;
-            this.cbxProveedor.Location = new System.Drawing.Point(618, 112);
+            this.cbxProveedor.Location = new System.Drawing.Point(618, 367);
             this.cbxProveedor.Name = "cbxProveedor";
             this.cbxProveedor.Size = new System.Drawing.Size(174, 21);
             this.cbxProveedor.TabIndex = 55;
@@ -405,7 +405,7 @@
             this.cbxMarca.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.cbxMarca.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxMarca.FormattingEnabled = true;
-            this.cbxMarca.Location = new System.Drawing.Point(616, 148);
+            this.cbxMarca.Location = new System.Drawing.Point(616, 112);
             this.cbxMarca.Name = "cbxMarca";
             this.cbxMarca.Size = new System.Drawing.Size(178, 21);
             this.cbxMarca.TabIndex = 56;
@@ -417,7 +417,7 @@
             this.btnCrear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCrear.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCrear.ForeColor = System.Drawing.SystemColors.Window;
-            this.btnCrear.Location = new System.Drawing.Point(361, 363);
+            this.btnCrear.Location = new System.Drawing.Point(361, 324);
             this.btnCrear.Name = "btnCrear";
             this.btnCrear.Size = new System.Drawing.Size(124, 29);
             this.btnCrear.TabIndex = 61;
@@ -433,7 +433,7 @@
             this.btnLimpiar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLimpiar.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLimpiar.ForeColor = System.Drawing.SystemColors.Window;
-            this.btnLimpiar.Location = new System.Drawing.Point(636, 363);
+            this.btnLimpiar.Location = new System.Drawing.Point(636, 324);
             this.btnLimpiar.Name = "btnLimpiar";
             this.btnLimpiar.Size = new System.Drawing.Size(137, 29);
             this.btnLimpiar.TabIndex = 62;
@@ -476,7 +476,7 @@
             // nudBultosIniciales
             // 
             this.nudBultosIniciales.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.nudBultosIniciales.Location = new System.Drawing.Point(645, 293);
+            this.nudBultosIniciales.Location = new System.Drawing.Point(645, 221);
             this.nudBultosIniciales.Name = "nudBultosIniciales";
             this.nudBultosIniciales.Size = new System.Drawing.Size(120, 20);
             this.nudBultosIniciales.TabIndex = 59;
@@ -486,7 +486,7 @@
             this.lblBultosIniciales.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblBultosIniciales.AutoSize = true;
             this.lblBultosIniciales.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBultosIniciales.Location = new System.Drawing.Point(307, 285);
+            this.lblBultosIniciales.Location = new System.Drawing.Point(307, 213);
             this.lblBultosIniciales.Name = "lblBultosIniciales";
             this.lblBultosIniciales.Size = new System.Drawing.Size(231, 36);
             this.lblBultosIniciales.TabIndex = 29;
@@ -497,7 +497,7 @@
             this.lblPrecio.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblPrecio.AutoSize = true;
             this.lblPrecio.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPrecio.Location = new System.Drawing.Point(348, 213);
+            this.lblPrecio.Location = new System.Drawing.Point(348, 177);
             this.lblPrecio.Name = "lblPrecio";
             this.lblPrecio.Size = new System.Drawing.Size(149, 36);
             this.lblPrecio.TabIndex = 21;
@@ -507,7 +507,7 @@
             // 
             this.txtPrecioUnit.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.txtPrecioUnit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPrecioUnit.Location = new System.Drawing.Point(655, 218);
+            this.txtPrecioUnit.Location = new System.Drawing.Point(655, 182);
             this.txtPrecioUnit.Name = "txtPrecioUnit";
             this.txtPrecioUnit.Size = new System.Drawing.Size(100, 26);
             this.txtPrecioUnit.TabIndex = 60;
@@ -517,7 +517,7 @@
             this.lblPresentacion.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblPresentacion.AutoSize = true;
             this.lblPresentacion.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPresentacion.Location = new System.Drawing.Point(339, 177);
+            this.lblPresentacion.Location = new System.Drawing.Point(339, 141);
             this.lblPresentacion.Name = "lblPresentacion";
             this.lblPresentacion.Size = new System.Drawing.Size(168, 36);
             this.lblPresentacion.TabIndex = 65;
@@ -528,7 +528,7 @@
             this.cbxPresentacion.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.cbxPresentacion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxPresentacion.FormattingEnabled = true;
-            this.cbxPresentacion.Location = new System.Drawing.Point(616, 184);
+            this.cbxPresentacion.Location = new System.Drawing.Point(616, 148);
             this.cbxPresentacion.Name = "cbxPresentacion";
             this.cbxPresentacion.Size = new System.Drawing.Size(178, 21);
             this.cbxPresentacion.TabIndex = 66;
@@ -538,7 +538,7 @@
             this.lblUPB.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lblUPB.AutoSize = true;
             this.lblUPB.Font = new System.Drawing.Font("Segoe UI", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUPB.Location = new System.Drawing.Point(299, 321);
+            this.lblUPB.Location = new System.Drawing.Point(299, 285);
             this.lblUPB.Name = "lblUPB";
             this.lblUPB.Size = new System.Drawing.Size(247, 36);
             this.lblUPB.TabIndex = 25;
@@ -559,7 +559,7 @@
             // nudUPB
             // 
             this.nudUPB.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.nudUPB.Location = new System.Drawing.Point(645, 329);
+            this.nudUPB.Location = new System.Drawing.Point(645, 293);
             this.nudUPB.Name = "nudUPB";
             this.nudUPB.Size = new System.Drawing.Size(120, 20);
             this.nudUPB.TabIndex = 57;
@@ -632,14 +632,14 @@
             this.colFamilia,
             this.colMarca,
             this.colUnidadesPorBulto});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.DGResultadosMod.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.DGResultadosMod.DefaultCellStyle = dataGridViewCellStyle1;
             this.DGResultadosMod.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnKeystroke;
             this.DGResultadosMod.GridColor = System.Drawing.SystemColors.ButtonHighlight;
             this.DGResultadosMod.Location = new System.Drawing.Point(133, 4);
@@ -942,14 +942,14 @@
             this.Familia,
             this.Marca,
             this.Proveedor});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.DGResultadosBaja.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.DGResultadosBaja.DefaultCellStyle = dataGridViewCellStyle2;
             this.DGResultadosBaja.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnKeystroke;
             this.DGResultadosBaja.GridColor = System.Drawing.SystemColors.ButtonHighlight;
             this.DGResultadosBaja.Location = new System.Drawing.Point(205, 4);

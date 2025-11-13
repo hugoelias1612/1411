@@ -1,6 +1,6 @@
 ﻿namespace ArimaERP.EmpleadoProducto
 {
-    partial class FormHistorial
+    partial class FormHistorialCompras
     {
         /// <summary>
         /// Required designer variable.
@@ -122,7 +122,6 @@
             this.Controls.Add(this.TLPBase);
             this.Name = "FormHistorial";
             this.Text = "Historial ";
-            this.Load += new System.EventHandler(this.FormHistorial_Load);
             this.TLPBase.ResumeLayout(false);
             this.TLPBase.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvHistorial)).EndInit();
