@@ -44,5 +44,10 @@ namespace Capa_Logica
                 return null;
             }
         }
+        public MARCA CrearMarca(MARCA nuevaMarca)
+        {
+            var marcaCreada = marca.CrearMarca(nuevaMarca);
+            return marcaCreada;
+        }
     }
 }

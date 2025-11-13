@@ -31,5 +31,10 @@ namespace ArimaERP.Preventista
         {
             this.Close();
         }
+
+        private void ModalSeleccionarCliente_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

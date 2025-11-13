@@ -179,6 +179,6 @@ namespace Capa_Datos
                 return false;
             }
         }
-        //Obtener 
+        
     }
 }

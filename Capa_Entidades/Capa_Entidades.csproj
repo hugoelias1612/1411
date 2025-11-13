@@ -100,7 +100,9 @@
     <Compile Include="PRODUCTO.cs">
       <DependentUpon>ModelProyecto1.tt</DependentUpon>
     </Compile>
+    <Compile Include="ProductoCatalogoDto.cs" />
     <Compile Include="ProductoPresentacionVenta.cs" />
+    <Compile Include="ProductoVentaDto.cs" />
     <Compile Include="producto_presentacion.cs">
       <DependentUpon>ModelProyecto1.tt</DependentUpon>
     </Compile>

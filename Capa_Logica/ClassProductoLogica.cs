@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Capa_Datos;
+using Capa_Entidades;
+using Capa_Entidades.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Capa_Entidades;
-using Capa_Datos;
 
 namespace Capa_Logica
 {
@@ -130,7 +131,69 @@ namespace Capa_Logica
                 return -1;
             }
         }
-       public producto_presentacion CrearProductoPresentacion(int id_producto, int ID_presentacion, int cod_producto, decimal precioLista, int unidades_bulto, bool activo)
+        //obtener productos con stock crítico
+        public List<ProductoCatalogoDto> ObtenerProductosConStockCritico(
+               int? idFamilia = null,
+               int? idProveedor = null,
+               int? stockMaximo = null,
+               bool soloStockInsuficiente = false)
+        {
+            var productos = classProducto.ObtenerProductosConStockCritico(
+                idFamilia,
+                idProveedor,
+                stockMaximo,
+                soloStockInsuficiente);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return productos;
+        }
+        //ajustar stock actual en base a un movimientoS
+        public bool AjustarStock(int idProducto, int idPresentacion, int cantidad)
+        {
+            var resultado = classProducto.AjustarStock(idProducto, idPresentacion, cantidad);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return resultado;
+        }
+        //actualizar datos del producto y de su presentación
+        public bool ActualizarProducto(int idProducto, string nombre, int idFamilia, int idMarca, int idPresentacion, int codigoProducto, decimal precioLista, int unidadesPorBulto, bool activo)
+        {
+            try
+            {
+                var producto = new PRODUCTO
+                {
+                    id_producto = idProducto,
+                    nombre = nombre,
+                    id_familia = idFamilia,
+                    id_marca = idMarca
+                };
+
+                var presentacion = new producto_presentacion
+                {
+                    id_producto = idProducto,
+                    ID_presentacion = idPresentacion,
+                    cod_producto = codigoProducto,
+                    precioLista = precioLista,
+                    unidades_bulto = unidadesPorBulto,
+                    activo = activo
+                };
+
+                var resultado = classProducto.ActualizarProductoCompleto(producto, presentacion);
+                ErroresValidacion = classProducto.ErroresValidacion;
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion = new List<string> { "Error al actualizar el producto: " + ex.Message };
+                return false;
+            }
+        }
+        //establecer stock actual y umbral
+        public bool EstablecerStock(int idProducto, int idPresentacion, int stockActual, int umbralStock)
+        {
+            var resultado = classProducto.EstablecerStock(idProducto, idPresentacion, stockActual, umbralStock);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return resultado;
+        }
+        public producto_presentacion CrearProductoPresentacion(int id_producto, int ID_presentacion, int cod_producto, decimal precioLista, int unidades_bulto, bool activo)
         {
             try
             {
@@ -168,7 +231,71 @@ namespace Capa_Logica
                 return null;
             }
         }
+        //validar disponibilidad del código de producto
+        public bool EsCodigoDeProductoDisponible(int codigo, int? idProductoExcluir = null, int? idPresentacionExcluir = null)
+        {
+            var disponible = classProducto.EsCodigoDeProductoDisponible(codigo, idProductoExcluir, idPresentacionExcluir);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return disponible;
+        }
+        //crear producto y su presentación asociada
+        // Se añadió 'unidadesPorBulto' en la firma y se asigna a presentacion.unidades_bulto
+        public bool CrearProducto(string nombre, int idFamilia, int idMarca, int codigoProducto, decimal precioLista, int idPresentacion, int stockInicial, int umbralStock, bool activo = true)
+        {
+            try
+            {
+                var producto = new PRODUCTO
+                {
+                    nombre = nombre,
+                    id_familia = idFamilia,
+                    id_marca = idMarca
+                };
 
+                var presentacion = new producto_presentacion
+                {
+                    ID_presentacion = idPresentacion,
+                    cod_producto = codigoProducto,
+                    precioLista = precioLista,
+                    unidades_bulto = umbralStock,
+                    activo = activo
+                };
+
+                var stock = new stock
+                {
+                    stock_actual = stockInicial,
+                    umbral_stock = umbralStock
+                };
+
+                var resultado = classProducto.CrearProductoConPresentacionYStock(producto, presentacion, stock);
+                ErroresValidacion = classProducto.ErroresValidacion;
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion = new List<string> { "Error al crear el producto: " + ex.Message };
+                return false;
+            }
+        }
+
+        //cambiar el estado activo/inactivo de una presentación
+        public bool CambiarEstadoProducto(int idProducto, int idPresentacion, bool activo)
+        {
+            var resultado = classProducto.CambiarEstadoProducto(idProducto, idPresentacion, activo);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return resultado;
+        }
+        public List<PRESENTACION> ObtenerPresentacionesPorRango(int idDesde, int idHasta)
+        {
+            var presentaciones = classProducto.ObtenerPresentacionesPorRango(idDesde, idHasta);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return presentaciones;
+        }
+        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? idProveedor, bool? activo)
+        {
+            var productos = classProducto.BuscarCatalogoProductos(termino, idFamilia, idMarca, idProveedor, activo);
+            ErroresValidacion = classProducto.ErroresValidacion;
+            return productos;
+        }
     }
 }
 

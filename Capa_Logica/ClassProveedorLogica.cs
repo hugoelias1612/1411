@@ -28,5 +28,22 @@ namespace Capa_Logica
             }
         
         }
+
+        public PROVEEDOR CrearProveedor(PROVEEDOR nuevoProveedor)
+        {
+            var proveedorCreado = proveedor.CrearProveedor(nuevoProveedor);
+            return proveedorCreado;
+        }
+        public bool ActualizarProveedor(PROVEEDOR proveedorActualizado)
+        {
+            var actualizado = proveedor.ActualizarProveedor(proveedorActualizado);
+            return actualizado;
+        }
+        public PROVEEDOR ObtenerProveedorPorId(int idProveedor)
+        {
+            var proveedorEncontrado = proveedor.ObtenerProveedorPorId(idProveedor);
+            return proveedorEncontrado;
+        }
+
     }
 }

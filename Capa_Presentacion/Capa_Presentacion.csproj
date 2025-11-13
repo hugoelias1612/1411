@@ -263,6 +263,12 @@
     <Compile Include="EmpleadoProducto\FormEditarProducto.Designer.cs">
       <DependentUpon>FormEditarProducto.cs</DependentUpon>
     </Compile>
+    <Compile Include="EmpleadoProducto\FormEditProveedor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EmpleadoProducto\FormEditProveedor.Designer.cs">
+      <DependentUpon>FormEditProveedor.cs</DependentUpon>
+    </Compile>
     <Compile Include="EmpleadoProducto\FormFMP.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -274,6 +280,12 @@
     </Compile>
     <Compile Include="EmpleadoProducto\FormStock.Designer.cs">
       <DependentUpon>FormStock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EmpleadoProducto\FormVerProductosDadosDeBaja.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EmpleadoProducto\FormVerProductosDadosDeBaja.Designer.cs">
+      <DependentUpon>FormVerProductosDadosDeBaja.cs</DependentUpon>
     </Compile>
     <Compile Include="EmpleadoProducto\MDIProductos.cs">
       <SubType>Form</SubType>
@@ -421,11 +433,17 @@
     <EmbeddedResource Include="EmpleadoProducto\FormEditarProducto.resx">
       <DependentUpon>FormEditarProducto.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="EmpleadoProducto\FormEditProveedor.resx">
+      <DependentUpon>FormEditProveedor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EmpleadoProducto\FormFMP.resx">
       <DependentUpon>FormFMP.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EmpleadoProducto\FormStock.resx">
       <DependentUpon>FormStock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmpleadoProducto\FormVerProductosDadosDeBaja.resx">
+      <DependentUpon>FormVerProductosDadosDeBaja.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EmpleadoProducto\MDIProductos.resx">
       <DependentUpon>MDIProductos.cs</DependentUpon>
