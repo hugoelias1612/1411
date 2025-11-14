@@ -15,6 +15,7 @@ namespace ArimaERP.EmpleadoProducto
         private readonly ClassFamiliaLogica _familiaLogica = new ClassFamiliaLogica();
         private readonly ClassMarcaLogica _marcaLogica = new ClassMarcaLogica();
         private readonly ClassCompraLogica _compraLogica = new ClassCompraLogica();
+        private readonly ClassProveedorLogica _proveedorLogica = new ClassProveedorLogica();
         private readonly CultureInfo _culturaMoneda = CultureInfo.GetCultureInfo("es-AR");
         private int? _marcaActualId;
         private const decimal MargenPrecioVenta = 1.2m;                   // 120%
@@ -39,6 +40,17 @@ namespace ArimaERP.EmpleadoProducto
         private void FormComprar_Load(object sender, EventArgs e)
         {
             InicializarControles();
+            //Cargar proveedores desde la base de datos y asignarlos al ComboBox
+            var proveedores = _proveedorLogica.ObtenerTodosLosProveedores() ?? new List<PROVEEDOR>();
+            if (_proveedorLogica.ErroresValidacion.Any())
+            {
+                MostrarErrores("Error al cargar proveedores", _proveedorLogica.ErroresValidacion);
+            }
+            cbxProv.DataSource = proveedores;
+            cbxProv.DisplayMember = nameof(PROVEEDOR.nombre);
+            cbxProv.ValueMember = nameof(PROVEEDOR.id_proveedor);
+            cbxProv.SelectedIndex = 0;
+
         }
 
         private void InicializarControles()
@@ -497,7 +509,8 @@ namespace ArimaERP.EmpleadoProducto
                 detalles.Add(detalle);
                 totalCompra += precioCompra * item.Cantidad;        // el monto de la compra también al costo
             }
-
+            //Obtener el id_proveedor seleccionado
+            int idProveedorSeleccionado = (int)cbxProv.SelectedValue;
             int nro = _compraLogica.ObtenerSiguienteNumeroFactura();
 
             var nuevaCompra = new compra
@@ -505,7 +518,7 @@ namespace ArimaERP.EmpleadoProducto
                 fecha = DateTime.Now,
                 monto = totalCompra,
                 nro_factura = nro,
-                id_proveedor = 5
+                id_proveedor = idProveedorSeleccionado
             };
 
             bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
@@ -631,7 +644,5 @@ namespace ArimaERP.EmpleadoProducto
         {
 
         }
-
-       
     }
 }

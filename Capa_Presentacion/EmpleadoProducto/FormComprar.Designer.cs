@@ -33,7 +33,6 @@
             this.labelTitulo = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.lblBuscar = new System.Windows.Forms.Label();
             this.txtBuscar = new System.Windows.Forms.TextBox();
             this.button5 = new System.Windows.Forms.Button();
             this.btnFiltrar = new System.Windows.Forms.Button();
@@ -66,6 +65,7 @@
             this.btnGuardar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.cbxProv = new System.Windows.Forms.ComboBox();
             this.TLPBase.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -146,7 +146,6 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
-            this.tableLayoutPanel1.Controls.Add(this.lblBuscar, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.txtBuscar, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.button5, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.btnFiltrar, 4, 1);
@@ -157,6 +156,7 @@
             this.tableLayoutPanel1.Controls.Add(this.lblFamilia, 4, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxProveedor, 6, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxFamilia, 5, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxProv, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 38);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(10);
@@ -166,17 +166,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1252, 73);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // lblBuscar
-            // 
-            this.lblBuscar.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.lblBuscar.AutoSize = true;
-            this.lblBuscar.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBuscar.Location = new System.Drawing.Point(179, 36);
-            this.lblBuscar.Name = "lblBuscar";
-            this.lblBuscar.Size = new System.Drawing.Size(109, 37);
-            this.lblBuscar.TabIndex = 16;
-            this.lblBuscar.Text = "Buscar por nombre";
             // 
             // txtBuscar
             // 
@@ -237,7 +226,6 @@
             this.lblProveedor.TabIndex = 5;
             this.lblProveedor.Text = "Proveedor";
             this.lblProveedor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblProveedor.Visible = false;
             // 
             // lblMarca
             // 
@@ -560,6 +548,17 @@
             this.panel1.Size = new System.Drawing.Size(1264, 40);
             this.panel1.TabIndex = 3;
             // 
+            // cbxProv
+            // 
+            this.cbxProv.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cbxProv.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxProv.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbxProv.FormattingEnabled = true;
+            this.cbxProv.Location = new System.Drawing.Point(167, 39);
+            this.cbxProv.Name = "cbxProv";
+            this.cbxProv.Size = new System.Drawing.Size(134, 36);
+            this.cbxProv.TabIndex = 23;
+            // 
             // FormComprar
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -570,6 +569,7 @@
             this.Name = "FormComprar";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "FormComprar";
+            this.Load += new System.EventHandler(this.FormComprar_Load);
             this.TLPBase.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
@@ -600,7 +600,6 @@
         private System.Windows.Forms.ComboBox cbxProveedor;
         private System.Windows.Forms.ComboBox cbxMarca;
         private System.Windows.Forms.Button btnFiltrar;
-        private System.Windows.Forms.Label lblBuscar;
         private System.Windows.Forms.TextBox txtBuscar;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
@@ -628,5 +627,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Stock;
         private System.Windows.Forms.DataGridViewTextBoxColumn Familia;
         private System.Windows.Forms.DataGridViewTextBoxColumn Marca;
+        private System.Windows.Forms.ComboBox cbxProv;
     }
 }
