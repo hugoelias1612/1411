@@ -130,16 +130,16 @@ namespace Capa_Datos
             {
                 using (var context = new ArimaERPEntities())
                 {
-                    var historial = context.detalle_compra
-                        .Include(d => d.compra)
-                        .Where(d => d.compra != null)
-                        .Select(d => new CompraHistorialDto
+                    var historial = context.compra
+                        .Select(c => new CompraHistorialDto
                         {
-                            FechaCompra = d.compra.fecha,
-                            Cantidad = d.cantidad_bulto,
-                            Monto = d.compra.monto,
-                            NumeroFactura = d.compra.nro_factura,
-                            IdProducto = d.id_producto
+                            CompraId = c.compra_id,
+                            FechaCompra = c.fecha,
+                            Marca = c.detalle_compra
+                                .Select(dc => dc.producto_presentacion.PRODUCTO.MARCA.nombre)
+                                .FirstOrDefault(),
+                            Monto = c.monto,
+                            NumeroFactura = c.nro_factura
                         })
                         .OrderByDescending(d => d.FechaCompra)
                         .ThenByDescending(d => d.NumeroFactura)
@@ -159,6 +159,41 @@ namespace Capa_Datos
                 return new List<CompraHistorialDto>();
             }
         }
+
+        public List<CompraDetalleDto> ObtenerDetalleCompra(int compraId)
+        {
+            ErroresValidacion.Clear();
+
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    var detalles = context.detalle_compra
+                        .Include(d => d.producto_presentacion.PRODUCTO)
+                        .Where(d => d.compra_id == compraId)
+                        .OrderBy(d => d.detalle_compra_id)
+                        .Select(d => new CompraDetalleDto
+                        {
+                            IdProducto = d.id_producto,
+                            NombreProducto = d.producto_presentacion.PRODUCTO.nombre,
+                            Cantidad = d.cantidad_bulto,
+                            PrecioUnitario = d.precio_unitario
+                        })
+                        .ToList();
+
+                    return detalles;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Add("Error al obtener el detalle de la compra: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    ErroresValidacion.Add("Detalle: " + ex.InnerException.Message);
+                }
+
+                return new List<CompraDetalleDto>();
+            }
+        }
     }
 }
-    

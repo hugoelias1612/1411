@@ -183,6 +183,7 @@
             this.Detalle.Name = "Detalle";
             this.Detalle.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.Detalle.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.Detalle.UseColumnTextForButtonValue = true;
             this.Detalle.Width = 150;
             // 
             // FormHistorialCompras
@@ -205,16 +206,16 @@
 
         private System.Windows.Forms.TableLayoutPanel TLPBase;
         private System.Windows.Forms.DataGridView dgvHistorial;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FechaCompra;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Marca;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Monto;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NumeroFactura;
-        private System.Windows.Forms.DataGridViewButtonColumn Detalle;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.DateTimePicker dtpHasta;
         private System.Windows.Forms.Label lblHasta;
         private System.Windows.Forms.Label lblDesde;
         private System.Windows.Forms.DateTimePicker dtpDesde;
         private System.Windows.Forms.Button btnFiltrar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FechaCompra;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Marca;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Monto;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NumeroFactura;
+        private System.Windows.Forms.DataGridViewButtonColumn Detalle;
     }
 }

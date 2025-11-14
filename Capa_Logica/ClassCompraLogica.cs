@@ -34,5 +34,10 @@ namespace Capa_Logica
         {
             return compraDatos.ObtenerHistorialCompras();
         }
+
+        public List<CompraDetalleDto> ObtenerDetalleCompra(int compraId)
+        {
+            return compraDatos.ObtenerDetalleCompra(compraId);
+        }
     }
 }

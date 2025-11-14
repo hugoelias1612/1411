@@ -53,6 +53,7 @@
     <Compile Include="compra.cs">
       <DependentUpon>ModelProyecto1.tt</DependentUpon>
     </Compile>
+    <Compile Include="CompraDetalleDto.cs" />
     <Compile Include="CompraHistorialDto.cs" />
     <Compile Include="CUENTA_CORRIENTE.cs">
       <DependentUpon>ModelProyecto1.tt</DependentUpon>
