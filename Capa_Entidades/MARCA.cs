@@ -28,5 +28,8 @@ namespace Capa_Entidades
         public virtual ICollection<PRODUCTO> PRODUCTO { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PROVEEDOR> PROVEEDOR { get; set; }
+        // Añadido para coincidir con la metadata del EDMX
+        
+
     }
 }

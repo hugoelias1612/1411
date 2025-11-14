@@ -910,7 +910,7 @@
           <Property Name="id_marca" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="nombre" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="PRODUCTO" Relationship="Self.FK_ID_marca_producto" FromRole="MARCA" ToRole="PRODUCTO" />
-          <NavigationProperty Name="PROVEEDOR" Relationship="Self.marca_proveedor" FromRole="MARCA" ToRole="PROVEEDOR" />
+          <NavigationProperty Name="PROVEEDOR" Relationship="ArimaERPModel1.marca_proveedor" FromRole="MARCA" ToRole="PROVEEDOR" />
         </EntityType>
         <EntityType Name="METODO_PAGO">
           <Key>
@@ -1015,7 +1015,7 @@
           <Property Name="cuit" Type="Int64" Nullable="false" />
           <Property Name="razon_social" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="compra" Relationship="Self.fk_compra_proveedor" FromRole="PROVEEDOR" ToRole="compra" />
-          <NavigationProperty Name="MARCA" Relationship="Self.marca_proveedor" FromRole="PROVEEDOR" ToRole="MARCA" />
+          <NavigationProperty Name="MARCA" Relationship="ArimaERPModel1.marca_proveedor" FromRole="PROVEEDOR" ToRole="MARCA" />
         </EntityType>
         <EntityType Name="ROL">
           <Key>
@@ -1396,10 +1396,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="marca_proveedor">
-          <End Role="MARCA" Type="Self.MARCA" Multiplicity="*" />
-          <End Role="PROVEEDOR" Type="Self.PROVEEDOR" Multiplicity="*" />
-        </Association>
         <EntityContainer Name="ArimaERPEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ACCION" EntityType="Self.ACCION" />
           <EntitySet Name="AUDITORIA" EntityType="Self.AUDITORIA" />
@@ -1531,12 +1527,16 @@
             <End Role="USUARIOS" EntitySet="USUARIOS" />
             <End Role="ZONA" EntitySet="ZONA" />
           </AssociationSet>
-          <AssociationSet Name="marca_proveedor" Association="Self.marca_proveedor">
+          <AssociationSet Name="marca_proveedor" Association="ArimaERPModel1.marca_proveedor">
             <End Role="MARCA" EntitySet="MARCA" />
             <End Role="PROVEEDOR" EntitySet="PROVEEDOR" />
           </AssociationSet>
-        </EntityContainer>
-      </Schema>
+          </EntityContainer>
+        <Association Name="marca_proveedor">
+          <End Type="ArimaERPModel1.MARCA" Role="MARCA" Multiplicity="*" />
+          <End Type="ArimaERPModel1.PROVEEDOR" Role="PROVEEDOR" Multiplicity="*" />
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -1827,11 +1827,11 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <AssociationSetMapping Name="marca_proveedor" TypeName="ArimaERPModel1.marca_proveedor" StoreEntitySet="marca_proveedor">
-            <EndProperty Name="MARCA">
-              <ScalarProperty Name="id_marca" ColumnName="id_marca" />
-            </EndProperty>
             <EndProperty Name="PROVEEDOR">
               <ScalarProperty Name="id_proveedor" ColumnName="id_proveedor" />
+            </EndProperty>
+            <EndProperty Name="MARCA">
+              <ScalarProperty Name="id_marca" ColumnName="id_marca" />
             </EndProperty>
           </AssociationSetMapping>
         </EntityContainerMapping>

@@ -57,8 +57,8 @@
         <AssociationConnector Association="ArimaERPModel1.fk_stock_producto_presentacion" ManuallyRouted="false" />
         <AssociationConnector Association="ArimaERPModel1.FK_id_rol" ManuallyRouted="false" />
         <AssociationConnector Association="ArimaERPModel1.fk_zona_preventista" ManuallyRouted="false" />
-        <AssociationConnector Association="ArimaERPModel1.marca_proveedor" ManuallyRouted="false" />
-      </Diagram>
+        <AssociationConnector Association="ArimaERPModel1.marca_proveedor" />
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>
