@@ -22,6 +22,16 @@ namespace Capa_Datos
                 return false;
             }
 
+            if (nuevaCompra.fecha == default(DateTime))
+            {
+                nuevaCompra.fecha = DateTime.Now.Date;
+            }
+            else
+            {
+                nuevaCompra.fecha = nuevaCompra.fecha.Date;
+            }
+
+
             if (detalles == null || detalles.Count == 0)
             {
                 ErroresValidacion.Add("Debe especificar al menos un detalle de compra.");
