@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ClassAuditoria.cs" />
     <Compile Include="ClassCliente.cs" />
+    <Compile Include="ClassCompra.cs" />
     <Compile Include="ClassEmpleado.cs" />
     <Compile Include="ClassFamilia.cs" />
     <Compile Include="ClassMarca.cs" />

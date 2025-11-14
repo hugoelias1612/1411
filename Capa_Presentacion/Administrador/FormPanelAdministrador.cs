@@ -7,6 +7,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -145,5 +148,67 @@ namespace ArimaERP.Administrador
             formAuditoria.Show();
             this.Hide();
         }
+
+        private void btnBackup_Click(object sender, EventArgs e)
+        {
+            // Nombre de la base a respaldar
+            string nombreBaseDatos = "ArimaERP"; // cámbialo si tu BD tiene otro nombre
+
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.Description = "Seleccioná la carpeta donde querés guardar el backup";
+
+                if (dialog.ShowDialog() != DialogResult.OK)
+                {
+                    // El usuario canceló
+                    return;
+                }
+
+                string carpeta = dialog.SelectedPath;
+
+                // Nombre del archivo: ArimaERP_2025-11-13_153000.bak
+                string nombreArchivo = $"{nombreBaseDatos}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
+                string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+
+                try
+                {
+                    string connectionString = ConfigurationManager
+                        .ConnectionStrings["ConexionBackup"]
+                        .ConnectionString;
+
+                    using (var conexion = new SqlConnection(connectionString))
+                    {
+                        conexion.Open();
+
+                        string sqlBackup = $@"
+BACKUP DATABASE [{nombreBaseDatos}]
+TO DISK = @ruta
+WITH INIT, STATS = 5";
+
+                        using (var comando = new SqlCommand(sqlBackup, conexion))
+                        {
+                            comando.Parameters.AddWithValue("@ruta", rutaCompleta);
+                            comando.CommandTimeout = 0; // por si tarda
+                            comando.ExecuteNonQuery();
+                        }
+                    }
+
+                    MessageBox.Show(
+                        $"Backup generado correctamente.\n\nUbicación:\n{rutaCompleta}",
+                        "Backup exitoso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Ocurrió un error al generar el backup:\n\n" + ex.Message,
+                        "Error al hacer backup",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
+
     }
 }

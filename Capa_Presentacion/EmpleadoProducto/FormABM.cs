@@ -113,18 +113,6 @@ namespace ArimaERP.EmpleadoProducto
             {
                 errorProvider1.SetError(cbxFamilia, string.Empty);
             }
-
-            int proveedorId = cbxProveedor.SelectedValue is int idProveedor ? idProveedor : 0;
-            if (proveedorId == 0)
-            {
-                mensajesError.Add("Debe seleccionar un proveedor.");
-                errorProvider1.SetError(cbxProveedor, "Seleccione un proveedor.");
-            }
-            else
-            {
-                errorProvider1.SetError(cbxProveedor, string.Empty);
-            }
-
             int marcaId = cbxMarca.SelectedValue is int idMarca ? idMarca : 0;
             if (marcaId == 0)
             {
@@ -209,7 +197,7 @@ namespace ArimaERP.EmpleadoProducto
             bool creado;
             try
             {
-                creado = _productoLogica.CrearProducto(nombre, familiaId, marcaId, codigoProducto, precioLista, presentacionId, stockInicial, umbralStock);
+                creado = _productoLogica.CrearProducto(nombre, familiaId, marcaId,codigoProducto, precioLista, presentacionId, stockInicial, umbralStock);
             }
             catch (Exception ex)
             {
@@ -884,5 +872,9 @@ namespace ArimaERP.EmpleadoProducto
             }
         }
 
+        private void cbxProveedor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

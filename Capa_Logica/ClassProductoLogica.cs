@@ -290,9 +290,9 @@ namespace Capa_Logica
             ErroresValidacion = classProducto.ErroresValidacion;
             return presentaciones;
         }
-        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? idProveedor, bool? activo)
+        public List<ProductoCatalogoDto> BuscarCatalogoProductos(string termino, int? idFamilia, int? idMarca, int? _idProveedor, bool? activo)
         {
-            var productos = classProducto.BuscarCatalogoProductos(termino, idFamilia, idMarca, idProveedor, activo);
+            var productos = classProducto.BuscarCatalogoProductos(termino, idFamilia, idMarca, _idProveedor, activo);
             ErroresValidacion = classProducto.ErroresValidacion;
             return productos;
         }

@@ -14,7 +14,11 @@ namespace ArimaERP.EmpleadoProducto
         private readonly ClassProductoLogica _productoLogica = new ClassProductoLogica();
         private readonly ClassFamiliaLogica _familiaLogica = new ClassFamiliaLogica();
         private readonly ClassMarcaLogica _marcaLogica = new ClassMarcaLogica();
+        private readonly ClassCompraLogica _compraLogica = new ClassCompraLogica();
         private readonly CultureInfo _culturaMoneda = CultureInfo.GetCultureInfo("es-AR");
+        private int? _marcaActualId;
+        private const decimal MargenPrecioVenta = 1.2m;                   // 120%
+        private const decimal FactorCostoDesdeVenta = 1m / MargenPrecioVenta; //
 
         public FormComprar()
         {
@@ -25,11 +29,13 @@ namespace ArimaERP.EmpleadoProducto
             button4.Click += BtnLimpiarFiltros_Click;
             button5.Click += BtnBuscarPorNombre_Click;
             btnCarrito.Click += BtnCarrito_Click;
-            btnConfirmar.Click += BtnConfirmar_Click;
+            btnConfirmar.Click += btnConfirmar_Click;
+            btnGuardar.Click += btnGuardar_Click;
             dgvProductos.CellContentClick += DgvProductos_CellContentClick;
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             dataGridView1.CellValidating += DataGridView1_CellValidating;
             dataGridView1.EditingControlShowing += DataGridView1_EditingControlShowing;
+            cbxMarca.SelectedIndexChanged += CbxMarca_SelectedIndexChanged;
         }
 
         private void FormComprar_Load(object sender, EventArgs e)
@@ -54,27 +60,30 @@ namespace ArimaERP.EmpleadoProducto
 
             CargarFamilias();
             CargarMarcas();
+            ActualizarEstadoFiltros(true);
             ActualizarLabelTotal(0m);
             CargarProductos();
         }
 
         private void CargarFamilias()
         {
-            var familias = _familiaLogica.ObtenerTodasLasFamilias() ?? new List<FAMILIA>();
+            List<FAMILIA> familias = new List<FAMILIA>();
+
+            familias = _familiaLogica.ObtenerTodasLasFamilias() ?? new List<FAMILIA>();
 
             if (!familias.Any() && _familiaLogica.ErroresValidacion.Any())
             {
                 MostrarErrores("Error al cargar familias", _familiaLogica.ErroresValidacion);
             }
 
-            var familiasConOpcionTodas = new List<FAMILIA>
+            var familiasConOpcion = new List<FAMILIA>
             {
                 new FAMILIA { id_familia = 0, descripcion = "Todas" }
             };
 
-            familiasConOpcionTodas.AddRange(familias.OrderBy(f => f.descripcion));
+            familiasConOpcion.AddRange(familias.OrderBy(f => f.descripcion));
 
-            cbxFamilia.DataSource = familiasConOpcionTodas;
+            cbxFamilia.DataSource = familiasConOpcion;
             cbxFamilia.DisplayMember = nameof(FAMILIA.descripcion);
             cbxFamilia.ValueMember = nameof(FAMILIA.id_familia);
             cbxFamilia.SelectedIndex = 0;
@@ -82,24 +91,36 @@ namespace ArimaERP.EmpleadoProducto
 
         private void CargarMarcas()
         {
-            var marcas = _marcaLogica.ObtenerTodasLasMarcas() ?? new List<MARCA>();
+            List<MARCA> marcas = new List<MARCA>();
+
+            marcas = _marcaLogica.ObtenerTodasLasMarcas() ?? new List<MARCA>();
 
             if (!marcas.Any() && _marcaLogica.ErroresValidacion.Any())
             {
                 MostrarErrores("Error al cargar marcas", _marcaLogica.ErroresValidacion);
             }
 
-            var marcasConOpcionTodas = new List<MARCA>
+            var marcasConOpcion = new List<MARCA>
             {
                 new MARCA { id_marca = 0, nombre = "Todas" }
             };
 
-            marcasConOpcionTodas.AddRange(marcas.OrderBy(m => m.nombre));
+            marcasConOpcion.AddRange(marcas.OrderBy(m => m.nombre));
 
-            cbxMarca.DataSource = marcasConOpcionTodas;
+            cbxMarca.DataSource = marcasConOpcion;
             cbxMarca.DisplayMember = nameof(MARCA.nombre);
             cbxMarca.ValueMember = nameof(MARCA.id_marca);
             cbxMarca.SelectedIndex = 0;
+            _marcaActualId = ObtenerIdSeleccionado(cbxMarca);
+        }
+
+        private void ActualizarEstadoFiltros(bool habilitar)
+        {
+            cbxFamilia.Enabled = habilitar;
+            cbxMarca.Enabled = habilitar;
+            btnFiltrar.Enabled = habilitar;
+            button5.Enabled = habilitar;
+            txtBuscar.Enabled = habilitar;
         }
 
         private void BtnFiltrar_Click(object sender, EventArgs e)
@@ -114,13 +135,53 @@ namespace ArimaERP.EmpleadoProducto
 
         private void BtnLimpiarFiltros_Click(object sender, EventArgs e)
         {
-            cbxFamilia.SelectedIndex = 0;
-            cbxMarca.SelectedIndex = 0;
             txtBuscar.Clear();
+            if (cbxFamilia.Items.Count > 0)
+            {
+                cbxFamilia.SelectedIndex = 0;
+            }
+
+            if (cbxMarca.Items.Count > 0)
+            {
+                cbxMarca.SelectedIndex = 0;
+            }
+
             CargarProductos();
         }
 
         private void BtnCarrito_Click(object sender, EventArgs e)
+        {
+            LimpiarCarrito();
+        }
+
+        private void BtnHistorialCompras_Click(object sender, EventArgs e)
+        {
+            var historial = _compraLogica.ObtenerHistorialCompras() ?? new List<CompraHistorialDto>();
+
+            if (_compraLogica.ErroresValidacion.Any())
+            {
+                MostrarErrores("Error al cargar el historial de compras", _compraLogica.ErroresValidacion);
+                return;
+            }
+
+            using (var historialForm = new FormHistorialCompras())
+            {
+                historialForm.CargarHistorial(historial);
+
+                if (!historial.Any())
+                {
+                    MessageBox.Show(
+                        "Aún no hay compras registradas para mostrar.",
+                        "Historial vacío",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                historialForm.ShowDialog(this);
+            }
+        }
+
+        private void LimpiarCarrito()
         {
             dataGridView1.Rows.Clear();
             ActualizarLabelTotal(0m);
@@ -153,6 +214,20 @@ namespace ArimaERP.EmpleadoProducto
             return null;
         }
 
+        private void CbxMarca_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var marcaSeleccionada = ObtenerIdSeleccionado(cbxMarca);
+            bool cambioMarca = _marcaActualId != marcaSeleccionada;
+            _marcaActualId = marcaSeleccionada;
+
+            if (cambioMarca && dataGridView1.Rows.Count > 0)
+            {
+                LimpiarCarrito();
+            }
+
+            CargarProductos();
+        }
+
         private void ActualizarListadoProductos(IEnumerable<ProductoCatalogoDto> productos)
         {
             dgvProductos.Rows.Clear();
@@ -174,6 +249,8 @@ namespace ArimaERP.EmpleadoProducto
                     MessageBoxIcon.Information);
             }
         }
+
+
 
         private void DgvProductos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -306,26 +383,28 @@ namespace ArimaERP.EmpleadoProducto
                 int.TryParse(fila.Cells["Cantidad"].Value.ToString(), out cantidad);
             }
 
-            decimal total = producto.PrecioLista * cantidad;
+            decimal precioCompra = CalcularPrecioCompraDesdeLista(producto.PrecioLista);
+            decimal total = precioCompra * cantidad;
             fila.Cells["Total"].Value = FormatearMoneda(total);
         }
 
         private void ActualizarTotalesCarrito()
         {
             decimal total = dataGridView1.Rows
-                .Cast<DataGridViewRow>()
-                .Where(r => !r.IsNewRow && r.Tag is ProductoCatalogoDto)
-                .Sum(r =>
-                {
-                    var producto = (ProductoCatalogoDto)r.Tag;
-                    int cantidad = 0;
-                    if (r.Cells["Cantidad"].Value != null)
-                    {
-                        int.TryParse(r.Cells["Cantidad"].Value.ToString(), out cantidad);
-                    }
+          .Cast<DataGridViewRow>()
+          .Where(r => !r.IsNewRow && r.Tag is ProductoCatalogoDto)
+          .Sum(r =>
+          {
+              var producto = (ProductoCatalogoDto)r.Tag;
+              int cantidad = 0;
+              if (r.Cells["Cantidad"].Value != null)
+              {
+                  int.TryParse(r.Cells["Cantidad"].Value.ToString(), out cantidad);
+              }
 
-                    return producto.PrecioLista * cantidad;
-                });
+              decimal precioCompra = CalcularPrecioCompraDesdeLista(producto.PrecioLista);
+              return precioCompra * cantidad;
+          });
 
             ActualizarLabelTotal(total);
         }
@@ -340,7 +419,13 @@ namespace ArimaERP.EmpleadoProducto
             return valor.ToString("C2", _culturaMoneda);
         }
 
-        private void BtnConfirmar_Click(object sender, EventArgs e)
+        private decimal CalcularPrecioCompraDesdeLista(decimal precioLista)
+        {
+            // 3 decimales: 0.833
+            return Math.Round(precioLista * FactorCostoDesdeVenta, 3, MidpointRounding.AwayFromZero);
+        }
+
+        private void btnConfirmar_Click(object sender, EventArgs e)
         {
             var items = ObtenerItemsDelCarrito();
 
@@ -368,14 +453,69 @@ namespace ArimaERP.EmpleadoProducto
                 }
             }
 
+            var marcasEnCarrito = items
+                .Select(i => i.Producto.IdMarca)
+                .Distinct()
+                .ToList();
+
+            if (marcasEnCarrito.Count > 1)
+            {
+                MessageBox.Show(
+                    "Todos los productos del carrito deben pertenecer a la misma marca para confirmar la compra.",
+                    "Marcas diferentes",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!marcasEnCarrito.Any())
+            {
+                MessageBox.Show(
+                    "No se pudo determinar la marca asociada a los productos seleccionados.",
+                    "Marca no encontrada",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            int idMarcaCompra = marcasEnCarrito.First();
+
+            var detalles = new List<detalle_compra>();
+            decimal totalCompra = 0m;
+
             foreach (var item in items)
             {
-                bool resultado = _productoLogica.AjustarStock(item.Producto.IdProducto, item.Producto.IdPresentacion, item.Cantidad);
-                if (!resultado)
+                decimal precioLista = item.Producto.PrecioLista;
+                decimal precioCompra = CalcularPrecioCompraDesdeLista(precioLista); // 0.833 × lista
+
+                var detalle = new detalle_compra
                 {
-                    MostrarErrores("Error al actualizar el stock", _productoLogica.ErroresValidacion);
-                    return;
-                }
+                    cantidad_bulto = item.Cantidad,
+                    precio_unitario = precioCompra,                 // se guarda el 0.833 del precio lista
+                    id_producto = item.Producto.IdProducto,
+                    ID_presentacion = item.Producto.IdPresentacion
+                };
+
+                detalles.Add(detalle);
+                totalCompra += precioCompra * item.Cantidad;        // el monto de la compra también al costo
+            }
+
+            int nro = _compraLogica.ObtenerSiguienteNumeroFactura();
+
+            var nuevaCompra = new compra
+            {
+                fecha = DateTime.Now,
+                monto = totalCompra,
+                nro_factura = nro,
+                id_proveedor = 5
+            };
+
+            bool resultadoCompra = _compraLogica.RegistrarCompra(nuevaCompra, detalles);
+
+            if (!resultadoCompra)
+            {
+                MostrarErrores("Error al registrar la compra", _compraLogica.ErroresValidacion);
+                return;
             }
 
             MessageBox.Show(
@@ -384,10 +524,9 @@ namespace ArimaERP.EmpleadoProducto
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
 
-            BtnCarrito_Click(this, EventArgs.Empty);
+            LimpiarCarrito();
             CargarProductos();
         }
-
         private void SeleccionarFilaConProducto(ProductoCatalogoDto producto)
         {
             foreach (DataGridViewRow fila in dataGridView1.Rows)
@@ -462,5 +601,38 @@ namespace ArimaERP.EmpleadoProducto
         private void TLPFooter_Paint(object sender, PaintEventArgs e)
         {
         }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            var historial = _compraLogica.ObtenerHistorialCompras() ?? new List<CompraHistorialDto>();
+
+            if (_compraLogica.ErroresValidacion.Any())
+            {
+                MostrarErrores("Error al cargar el historial de compras", _compraLogica.ErroresValidacion);
+                return;
+            }
+
+            using (var historialForm = new FormHistorialCompras())
+            {
+                historialForm.CargarHistorial(historial);
+
+                if (!historial.Any())
+                {
+                    MessageBox.Show(
+                        "Aún no hay compras registradas para mostrar.",
+                        "Historial vacío",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                historialForm.ShowDialog(this);
+            }
+        }
+
+        private void cbxProveedor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="ClassAuditoriaLogica.cs" />
     <Compile Include="ClassClienteLogica.cs" />
+    <Compile Include="ClassCompraLogica.cs" />
     <Compile Include="ClassEmpleadoLogica.cs" />
     <Compile Include="ClassFamiliaLogica.cs" />
     <Compile Include="ClassMarcaLogica.cs" />

@@ -1,6 +1,7 @@
 ﻿using Capa_Entidades;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
@@ -76,6 +77,28 @@ namespace Capa_Datos
                 ErroresValidacion.Clear();
                 ErroresValidacion.Add("Error al crear la marca: " + ex.Message);
                 return null;
+            }
+        }
+
+        public List<MARCA> ObtenerMarcasPorProveedor(int idProveedor)
+        {
+            try
+            {
+                using (var context = new ArimaERPEntities())
+                {
+                    return context.PROVEEDOR
+                        .Where(p => p.id_proveedor == idProveedor)
+                        .SelectMany(p => p.MARCA)
+                        .Distinct()
+                        .OrderBy(m => m.nombre)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErroresValidacion.Clear();
+                ErroresValidacion.Add("Error al obtener las marcas por proveedor: " + ex.Message);
+                return new List<MARCA>();
             }
         }
     }
