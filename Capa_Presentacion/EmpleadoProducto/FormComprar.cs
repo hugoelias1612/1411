@@ -29,8 +29,6 @@ namespace ArimaERP.EmpleadoProducto
             button4.Click += BtnLimpiarFiltros_Click;
             button5.Click += BtnBuscarPorNombre_Click;
             btnCarrito.Click += BtnCarrito_Click;
-            btnConfirmar.Click += btnConfirmar_Click;
-            btnGuardar.Click += btnGuardar_Click;
             dgvProductos.CellContentClick += DgvProductos_CellContentClick;
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             dataGridView1.CellValidating += DataGridView1_CellValidating;

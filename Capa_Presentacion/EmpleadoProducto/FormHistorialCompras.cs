@@ -87,7 +87,7 @@ namespace ArimaERP.EmpleadoProducto
             foreach (var registro in historial ?? Enumerable.Empty<CompraHistorialDto>())
             {
                 _dgvHistorial.Rows.Add(
-                    registro.FechaCompra.ToString("dd/MM/yyyy HH:mm"),
+                    registro.FechaCompra.ToString("dd/MM/yyyy"),
                     registro.Cantidad,
                     registro.Monto.ToString("C2", _culturaMoneda),
                     registro.NumeroFactura,
